@@ -1,5 +1,3 @@
-import UserNavbar from "@/components/userNavbar";
-
 export default function Layout({
   children,
 }: {
