@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { FaFilter} from "react-icons/fa6";
 import { FaSearch } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa";
@@ -6,7 +8,32 @@ import { FaCamera } from "react-icons/fa";
 import { MdPhotoLibrary } from "react-icons/md";
 import Link from "next/link";
 
+interface Album {
+  id: number;
+  title: string;
+  description: string;
+}
+
 export default function Albums() {
+  const [albums, setAlbums] = useState<Album[]>([]);
+
+  useEffect(() => {
+    const fetchAlbums = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:8000/albumy/');
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setAlbums(data);
+      } catch (error) {
+        console.error('Error fetching albums:', error);
+      }
+    };
+
+    fetchAlbums();
+  }, []);
+
   return (
     <div className="flex flex-col items-center bg-slate-50 border-t border-b border-slate-200 flex-grow justify-center">
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -27,8 +54,8 @@ export default function Albums() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-          {[1, 2, 3, 4, 5].map((item) => (
-            <Link key={item} href={`/albums/${item}`} className="cursor-pointer transition-transform hover:scale-[1.01]">
+          {albums.map((album) => (
+            <Link key={album.id} href={`/albums/${album.id}`} className="cursor-pointer transition-transform hover:scale-[1.01]">
               <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div className="relative h-48 bg-slate-500 flex flex-col items-end p-3">
                   <MdPhotoLibrary className="text-slate-300 text-4xl absolute inset-0 m-auto" />
@@ -38,8 +65,8 @@ export default function Albums() {
                   </div>
                 </div>
                 <div className="p-4">
-                  <h2 className="text-xl font-semibold text-slate-700">Album {item}</h2>
-                  <p className="text-slate-500 text-sm">Data: {new Date().toLocaleDateString()}</p>
+                  <h2 className="text-xl font-semibold text-slate-700">{album.title}</h2>
+                  <p className="text-slate-500 text-sm">{album.description}</p>
                   <div className="flex flex-row justify-between gap-2 mt-8">
                     <p className="text-slate-600 text-sm">Ostatnio odwiedzany: 2 dni temu</p>
                     <FaArrowRight className="text-slate-500" />
@@ -52,4 +79,4 @@ export default function Albums() {
       </div>
     </div>
   );
-} 
+}
