@@ -5,18 +5,22 @@ import { IoIosCheckmarkCircle } from "react-icons/io";
 import { FaFilter, FaList } from "react-icons/fa6";
 import { HiMiniSquares2X2 } from "react-icons/hi2";
 
-export default async function AlbumDetail(props: { params: Promise<{ id: string }> }) {
-    const params = await props.params;
-    const albumId = await params.id;
+export default async function AlbumDetail(props: { params: { slug: string } }) {
+    const { slug } = await props.params;
 
-    const albumData = {
-        id: albumId,
-        title: `Album ${albumId}`,
-        date: new Date().toLocaleDateString(),
-        photos: Array.from({ length: 12 }, (_, i) => ({
-            id: i + 1
-        }))
-    };
+    console.log("Received slug:", slug); // Debug to check the slug value
+
+    if (!slug) {
+        throw new Error("Slug is undefined!");
+    }
+
+    const res = await fetch(`http://localhost:8000/albums/${slug}/`);
+
+    if (!res.ok) {
+        throw new Error(`Failed to fetch album with slug "${slug}"`);
+    }
+
+    const albumData = await res.json();
 
     return (
         <div className="flex flex-col items-center bg-slate-50 border-t border-slate-200 flex-grow">
@@ -71,9 +75,7 @@ export default async function AlbumDetail(props: { params: Promise<{ id: string 
                             <div className="absolute inset-0 transition-opacity ease-out duration-500 bg-gradient-to-t from-slate-50 to-transparent to-30% opacity-0 group-hover:opacity-15"></div>
                             <span className="absolute bottom-4 right-1/3 text-slate-50 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">Powiększ mnie</span>
                             <input type="checkbox" id={`photo-${photo.id}`} className="absolute top-2 right-2 w-4 h-4 text-slate-100 bg-slate-50 border-slate-300 rounded-sm" />
-                            <div className="w-full h-full flex items-center justify-center text-slate-300">
-                                Photo {photo.id}
-                            </div>
+                            <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
                         </div>
                     ))}
                 </div>

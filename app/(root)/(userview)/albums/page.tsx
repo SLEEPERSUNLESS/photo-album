@@ -12,6 +12,7 @@ interface Album {
   id: number;
   title: string;
   description: string;
+  slug: string;
 }
 
 export default function Albums() {
@@ -20,7 +21,7 @@ export default function Albums() {
   useEffect(() => {
     const fetchAlbums = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/albumy/');
+        const response = await fetch('http://127.0.0.1:8000/albums/');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -55,7 +56,7 @@ export default function Albums() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
           {albums.map((album) => (
-            <Link key={album.id} href={`/albums/${album.id}`} className="cursor-pointer transition-transform hover:scale-[1.01]">
+            <Link key={album.id} href={`/albums/${album.slug}`} className="cursor-pointer transition-transform hover:scale-[1.01]">
               <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                 <div className="relative h-48 bg-slate-500 flex flex-col items-end p-3">
                   <MdPhotoLibrary className="text-slate-300 text-4xl absolute inset-0 m-auto" />
