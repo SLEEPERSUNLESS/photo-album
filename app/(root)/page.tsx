@@ -72,13 +72,13 @@ export default function Home() {
                       const r = await apiFetch('/api/auth/request_code/', ({
                         method: 'POST',
                         body: JSON.stringify({ email }),
-                        // ensure we don't send any Authorization header for auth flows
-                        // (useful if a stored token is expired/invalid)
-                        // custom option handled by apiFetch
                         skipAuth: true,
                       } as any));
-                      await r.text();
-                      // mark code as sent and store email for verify
+                      const data = await r.json().catch(() => ({}));
+                      if (!r.ok) {
+                        alert(data?.detail || 'Ten adres e-mail nie jest przypisany. Skontaktuj się z fotografem.');
+                        return;
+                      }
                       setCodeSent(true);
                       localStorage.setItem('auth_email', email);
                     } catch (err) {
