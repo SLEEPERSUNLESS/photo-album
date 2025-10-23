@@ -9,7 +9,7 @@ type AllowedEntry = { id: string | number; email: string; is_active?: boolean; c
 
 export default function Dashboard() {
   const searchParams = useSearchParams();
-  const [tab, setTab] = useState<'accounts'|'albums'>('accounts');
+  const [tab, setTab] = useState<'accounts'|'albums'>('albums');
   const [list, setList] = useState<AllowedEntry[]>([]);
   const [allowEmail, setAllowEmail] = useState("");
   const [loading, setLoading] = useState(true);
@@ -89,8 +89,8 @@ export default function Dashboard() {
       <h1 className="text-2xl font-bold mb-4">Panel administratora</h1>
 
       <div className="mb-6 flex gap-2 border-b">
+        <button onClick={() => setTab('albums')} className={`px-3 py-2 ${tab==='albums' ? 'border-b-2 border-slate-700 font-semibold' : 'text-slate-600'}`}>Albumy</button>
         <button onClick={() => setTab('accounts')} className={`px-3 py-2 ${tab==='accounts' ? 'border-b-2 border-slate-700 font-semibold' : 'text-slate-600'}`}>Konta</button>
-  <button onClick={() => setTab('albums')} className={`px-3 py-2 ${tab==='albums' ? 'border-b-2 border-slate-700 font-semibold' : 'text-slate-600'}`}>Albumy</button>
       </div>
 
       {tab === 'accounts' && (

@@ -2,14 +2,16 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { apiFetch } from "../../../../../../lib/api";
 
 interface AccessItem { id: number; email: string }
 
 export default function AlbumAccessPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const slug = (params?.slug as string) || "";
+  const justCreated = Boolean(searchParams.get('justCreated'));
   const [list, setList] = useState<AccessItem[]>([]);
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState<string| null>(null);
@@ -93,6 +95,11 @@ export default function AlbumAccessPage() {
             )}
           </tbody>
         </table>
+      )}
+      {justCreated && (
+        <div className="mt-4 flex justify-end">
+          <Link href="/dashboard?tab=albums" className="px-4 py-2 bg-slate-700 text-white rounded inline-block">Pomiń dodawanie dostępu</Link>
+        </div>
       )}
     </div>
   );
