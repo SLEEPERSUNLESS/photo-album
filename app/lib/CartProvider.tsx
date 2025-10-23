@@ -10,7 +10,7 @@ export interface CartItem {
   url: string;
   album: number;
   albumTitle?: string;
-  price?: number; // For future pricing functionality
+  price?: number;
 }
 
 interface CartContextType {
@@ -39,9 +39,8 @@ interface CartProviderProps {
 
 export function CartProvider({ children }: CartProviderProps) {
   const [items, setItems] = useState<CartItem[]>([]);
-  const { isAuth, logout } = useAuth();
+  const [currentCartKey, setCurrentCartKey] = useState<string>("");
 
-  // Get user-specific cart key
   const getCartKey = () => {
     if (typeof window === "undefined") return "cart";
     const token = localStorage.getItem("access");
@@ -56,42 +55,64 @@ export function CartProvider({ children }: CartProviderProps) {
 
   useEffect(() => {
     const cartKey = getCartKey();
+    setCurrentCartKey(cartKey);
+    
     const savedCart = localStorage.getItem(cartKey);
     if (savedCart) {
       try {
-        setItems(JSON.parse(savedCart));
+        const parsedCart = JSON.parse(savedCart);
+        setItems(parsedCart);
       } catch (error) {
         console.error('Failed to parse saved cart:', error);
         setItems([]);
       }
-    } else {
-      setItems([]);
-    }
-  }, [isAuth]);
-
-  // Save cart to localStorage whenever items change
-  useEffect(() => {
-    const cartKey = getCartKey();
-    localStorage.setItem(cartKey, JSON.stringify(items));
-  }, [items, isAuth]);
-
-  // Clear cart on logout
-  useEffect(() => {
-    const handleLogout = () => {
-      clearCart();
-    };
-
-    if (typeof window !== "undefined") {
-      window.addEventListener('userLogout', handleLogout);
-      return () => window.removeEventListener('userLogout', handleLogout);
     }
   }, []);
 
+  useEffect(() => {
+    if (currentCartKey) {
+      localStorage.setItem(currentCartKey, JSON.stringify(items));
+    }
+  }, [items, currentCartKey]);
+
+  useEffect(() => {
+    const handleAuthChange = () => {
+      const newCartKey = getCartKey();
+      if (newCartKey !== currentCartKey) {
+        if (currentCartKey) {
+          localStorage.setItem(currentCartKey, JSON.stringify(items));
+        }
+        
+        setCurrentCartKey(newCartKey);
+        const savedCart = localStorage.getItem(newCartKey);
+        if (savedCart) {
+          try {
+            const parsedCart = JSON.parse(savedCart);
+            setItems(parsedCart);
+          } catch (error) {
+            console.error('Failed to parse saved cart on auth change:', error);
+            setItems([]);
+          }
+        } else {
+          setItems([]);
+        }
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener('userLogout', handleAuthChange);
+      window.addEventListener('userLogin', handleAuthChange);
+      return () => {
+        window.removeEventListener('userLogout', handleAuthChange);
+        window.removeEventListener('userLogin', handleAuthChange);
+      };
+    }
+  }, [currentCartKey, items]);
+
   const addItem = (item: CartItem) => {
     setItems(prev => {
-      // Check if item already exists
       if (prev.some(existing => existing.id === item.id)) {
-        return prev; // Don't add duplicates
+        return prev;
       }
       return [...prev, item];
     });
@@ -116,8 +137,6 @@ export function CartProvider({ children }: CartProviderProps) {
   };
 
   const getTotalPrice = () => {
-    // For now, return 0 since we don't have pricing yet
-    // In the future, this could sum up item prices
     return 0;
   };
 
