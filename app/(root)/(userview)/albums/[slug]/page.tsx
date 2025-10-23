@@ -255,7 +255,7 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
 
             {enlargedPhoto && (
                 <div
-                    className="fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50"
+                    className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
                     onClick={handleCloseEnlarged}
                 >
                     <div className="relative max-w-6xl w-full max-h-full p-4" onClick={(e) => e.stopPropagation()}>
