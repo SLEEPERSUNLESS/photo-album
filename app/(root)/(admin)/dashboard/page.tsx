@@ -241,6 +241,7 @@ export default function Dashboard() {
                         }}
                         className="px-3 py-1 bg-slate-700 text-white rounded disabled:opacity-60"
                       >Zapisz</button>
+                      <Link href={`/dashboard/albums/${a.slug}/photos`} className="px-3 py-1 border rounded">Zdjęcia</Link>
                       <Link href={`/dashboard/albums/${a.slug}/access`} className="px-3 py-1 border rounded">Edytuj dostęp</Link>
                       <button
                         onClick={async ()=>{

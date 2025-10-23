@@ -10,6 +10,7 @@ export default function NewAlbumPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [thumbnail, setThumbnail] = useState<File | null>(null);
+  const [photos, setPhotos] = useState<FileList | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
@@ -23,6 +24,9 @@ export default function NewAlbumPage() {
       form.append('title', title);
       if (description) form.append('description', description);
       if (thumbnail) form.append('thumbnail', thumbnail);
+      if (photos && photos.length) {
+        Array.from(photos).forEach((f) => form.append('photos', f));
+      }
       const r = await apiFetch('/albums/', { method: 'POST', body: form });
       if (!r.ok) {
         const d = await r.json().catch(() => ({}));
@@ -53,6 +57,11 @@ export default function NewAlbumPage() {
           <label htmlFor="thumb" className="block text-sm text-slate-700">Miniaturka (opcjonalnie)</label>
           <input id="thumb" type="file" accept="image/*" onChange={(e)=>setThumbnail(e.target.files?.[0] || null)} className="w-full" />
           <p className="text-xs text-slate-500 mt-1">Obsługiwane formaty: JPG, PNG, itp.</p>
+        </div>
+        <div>
+          <label htmlFor="photos" className="block text-sm text-slate-700">Zdjęcia (opcjonalnie, wiele)</label>
+          <input id="photos" type="file" accept="image/*" multiple onChange={(e)=>setPhotos(e.target.files)} className="w-full" />
+          <p className="text-xs text-slate-500 mt-1">Możesz dodać wiele zdjęć naraz.</p>
         </div>
         {message && <p className="text-sm text-red-600">{message}</p>}
         <div className="flex gap-2">
