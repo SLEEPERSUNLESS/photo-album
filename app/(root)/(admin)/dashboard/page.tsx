@@ -123,7 +123,7 @@ export default function Dashboard() {
                 {list.map((it) => (
                   <tr key={String(it.id)}>
                     <td className="p-2 border">{it.email}</td>
-                    <td className="p-2 border">{it.is_admin ? "admin" : "dozwolony"}</td>
+                    <td className="p-2 border">{it.is_admin ? "admin" : "użytkownik"}</td>
                     <td className="p-2 border">{it.is_admin ? "tak" : (it.is_active ? "tak" : "nie")}</td>
                     <td className="p-2 border">
                       {!it.is_admin ? (

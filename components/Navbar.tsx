@@ -21,6 +21,11 @@ export default function Navbar({ albumTitle }: Props) {
   const pathname = usePathname();
   const { getTotalItems } = useCart();
   const auth = isAuthenticated();
+  
+  const linkBase = "px-3 py-2 rounded-md text-sm font-medium";
+  const linkInactive = "text-slate-600 hover:text-slate-900";
+  const linkActive = "text-slate-900 font-semibold bg-slate-100";
+  const mobileLinkBase = "block px-3 py-2 rounded-md text-base font-medium";
 
   const isAlbumView = useMemo(() => {
     return Boolean(albumTitle);
@@ -73,14 +78,23 @@ export default function Navbar({ albumTitle }: Props) {
 
           <div className="hidden md:flex items-center space-x-4">
             {isAdmin && (
-              <Link href="/dashboard" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
+              <Link
+                href="/dashboard"
+                className={`${linkBase} ${pathname.startsWith('/dashboard') ? linkActive : linkInactive}`}
+              >
                 Panel
               </Link>
             )}
-            <Link href="/albums" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
+            <Link
+              href="/albums"
+              className={`${linkBase} ${pathname.startsWith('/albums') ? linkActive : linkInactive}`}
+            >
               Albumy
             </Link>
-            <Link href="/cart" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium relative">
+            <Link
+              href="/cart"
+              className={`${linkBase} ${pathname.startsWith('/cart') ? linkActive : linkInactive} relative`}
+            >
               <FaShoppingCart className="inline mr-1" />
               Koszyk
               {getTotalItems() > 0 && (
@@ -90,10 +104,16 @@ export default function Navbar({ albumTitle }: Props) {
               )}
             </Link>
             <TokenTimer />
-            <Link href="/" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
+            <Link
+              href="/"
+              className={`${linkBase} ${pathname === '/' ? linkActive : linkInactive}`}
+            >
               Zamówienia
             </Link>
-            <Link href="/" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
+            <Link
+              href="/"
+              className={`${linkBase} ${pathname === '/' ? linkActive : linkInactive}`}
+            >
               <FaUser className="inline mr-1" />
               Profil
             </Link>
@@ -103,11 +123,17 @@ export default function Navbar({ albumTitle }: Props) {
               </span>
             )}
             {auth ? (
-              <Link href="/logout" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
+              <Link
+                href="/logout"
+                className={`${linkBase} ${pathname.startsWith('/logout') ? linkActive : linkInactive}`}
+              >
                 Wyloguj
               </Link>
             ) : (
-              <Link href="/" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
+              <Link
+                href="/"
+                className={`${linkBase} ${pathname === '/' ? linkActive : linkInactive}`}
+              >
                 Zaloguj
               </Link>
             )}
@@ -133,14 +159,23 @@ export default function Navbar({ albumTitle }: Props) {
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white">
             {isAdmin && (
-              <Link href="/dashboard" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
+              <Link
+                href="/dashboard"
+                className={`${mobileLinkBase} ${pathname.startsWith('/dashboard') ? linkActive : linkInactive}`}
+              >
                 Panel
               </Link>
             )}
-            <Link href="/albums" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
+            <Link
+              href="/albums"
+              className={`${mobileLinkBase} ${pathname.startsWith('/albums') ? linkActive : linkInactive}`}
+            >
               Albumy
             </Link>
-            <Link href="/cart" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium relative">
+            <Link
+              href="/cart"
+              className={`${mobileLinkBase} ${pathname.startsWith('/cart') ? linkActive : linkInactive} relative`}
+            >
               <FaShoppingCart className="inline mr-1" />
               Koszyk
               {getTotalItems() > 0 && (
@@ -152,10 +187,16 @@ export default function Navbar({ albumTitle }: Props) {
             <div className="px-3 py-2">
               <TokenTimer />
             </div>
-            <Link href="/" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
+            <Link
+              href="/"
+              className={`${mobileLinkBase} ${pathname === '/' ? linkActive : linkInactive}`}
+            >
               Zamówienia
             </Link>
-            <Link href="/" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
+            <Link
+              href="/"
+              className={`${mobileLinkBase} ${pathname === '/' ? linkActive : linkInactive}`}
+            >
               <FaUser className="inline mr-1" />
               Profil
             </Link>
@@ -165,11 +206,17 @@ export default function Navbar({ albumTitle }: Props) {
               </div>
             )}
             {auth ? (
-              <Link href="/logout" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
+              <Link
+                href="/logout"
+                className={`${mobileLinkBase} ${pathname.startsWith('/logout') ? linkActive : linkInactive}`}
+              >
                 Wyloguj
               </Link>
             ) : (
-              <Link href="/" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
+              <Link
+                href="/"
+                className={`${mobileLinkBase} ${pathname === '/' ? linkActive : linkInactive}`}
+              >
                 Zaloguj
               </Link>
             )}
