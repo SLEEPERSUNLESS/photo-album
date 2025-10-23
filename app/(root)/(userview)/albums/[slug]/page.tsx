@@ -186,7 +186,6 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {albumData.photos.map((photo) => (
                         <div key={photo.id} className="group relative aspect-square bg-slate-200 rounded-md shadow-sm overflow-hidden">
-                            {/* Bottom hover gradient overlay (doesn't block clicks) */}
                             <div className="pointer-events-none absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"></div>
                             <span className="pointer-events-none absolute bottom-4 right-1/3 text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30">Powiększ mnie</span>
                             <input
@@ -199,12 +198,18 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
                                 title="Zaznacz zdjęcie"
                             />
                             <button
+                                onClick={() => handlePhotoSelect(photo.id)}
+                                className="absolute inset-x-0 top-0 bottom-1/2 z-10 cursor-default"
+                                aria-label={`Zaznacz lub odznacz zdjęcie ${photo.title || ''}`}
+                                title="Zaznacz/odznacz"
+                            />
+                            <button
                                 onClick={() => handlePhotoEnlarge(photo)}
-                                className="absolute inset-0 w-full h-full cursor-default z-10"
+                                className="absolute inset-x-0 top-1/2 bottom-0 z-10 cursor-default"
                                 aria-label={`Powiększ zdjęcie ${photo.title || 'bez tytułu'}`}
-                            >
-                                <img src={photo.url} alt={photo.title || "Album photo"} className="w-full h-full object-cover" />
-                            </button>
+                                title="Powiększ zdjęcie"
+                            />
+                            <img src={photo.url} alt={photo.title || "Album photo"} className="w-full h-full object-cover z-0" />
                         </div>
                     ))}
                 </div>
@@ -224,7 +229,6 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
                 </div>
             </div>
 
-            {/* Enlarged Photo Modal */}
             {enlargedPhoto && (
                 <div 
                     className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
