@@ -1,11 +1,15 @@
+import { AuthProvider } from '../lib/AuthProvider';
+
 export default function Layout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      <div>{children}</div>
-    </div>
+    <AuthProvider>
+      <div>
+        <div>{children}</div>
+      </div>
+    </AuthProvider>
   );
 }
