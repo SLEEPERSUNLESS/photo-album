@@ -74,7 +74,7 @@ const UserNavbar = ({ albumTitle }: { albumTitle?: string }) => {
             )}
 
             {auth && (
-              <button onClick={logout} className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">Wyloguj</button>
+              <button onClick={logout} className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium cursor-pointer">Wyloguj</button>
             )}
           </div>
           

@@ -123,7 +123,7 @@ export default function Home() {
                           alert('Weryfikacja nie powiodła się');
                         }
                       }}
-                      className="h-10 px-4 rounded-md bg-slate-700 text-white"
+                      className="h-10 px-4 rounded-md bg-slate-700 text-white cursor-pointer"
                     >
                       Potwierdź
                     </button>

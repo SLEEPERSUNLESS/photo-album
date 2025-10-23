@@ -138,7 +138,7 @@ export default function Albums() {
         <button
           key={i}
           onClick={() => goToPage(i)}
-          className={`px-3 py-1 rounded ${currentPage === i ? 'bg-slate-200 font-medium' : 'hover:bg-slate-100'}`}
+          className={`px-3 py-1 rounded cursor-pointer ${currentPage === i ? 'bg-slate-200 font-medium' : 'hover:bg-slate-100'}`}
         >
           {i}
         </button>
@@ -151,7 +151,7 @@ export default function Albums() {
         <button
           onClick={goToPreviousPage}
           disabled={!previousPageUrl}
-          className={`p-2 rounded ${!previousPageUrl ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100'}`}
+          className={`p-2 rounded ${!previousPageUrl ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100 cursor-pointer'}`}
           aria-label="Previous page"
         >
           <FaAngleLeft />
@@ -160,7 +160,7 @@ export default function Albums() {
         <button
           onClick={goToNextPage}
           disabled={!nextPageUrl}
-          className={`p-2 rounded ${!nextPageUrl ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100'}`}
+          className={`p-2 rounded ${!nextPageUrl ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100 cursor-pointer'}`}
           aria-label="Next page"
         >
           <FaAngleRight />
