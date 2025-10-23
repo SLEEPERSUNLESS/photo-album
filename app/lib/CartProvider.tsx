@@ -1,6 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useAuth } from './AuthProvider';
+import { decodeJwt } from './auth';
 
 export interface CartItem {
   id: number;
@@ -37,23 +39,53 @@ interface CartProviderProps {
 
 export function CartProvider({ children }: CartProviderProps) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const { isAuth, logout } = useAuth();
 
-  // Load cart from localStorage on mount
+  // Get user-specific cart key
+  const getCartKey = () => {
+    if (typeof window === "undefined") return "cart";
+    const token = localStorage.getItem("access");
+    if (token) {
+      const decoded = decodeJwt(token);
+      if (decoded && decoded.user_id) {
+        return `cart_${decoded.user_id}`;
+      }
+    }
+    return "cart_guest";
+  };
+
   useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
+    const cartKey = getCartKey();
+    const savedCart = localStorage.getItem(cartKey);
     if (savedCart) {
       try {
         setItems(JSON.parse(savedCart));
       } catch (error) {
         console.error('Failed to parse saved cart:', error);
+        setItems([]);
       }
+    } else {
+      setItems([]);
     }
-  }, []);
+  }, [isAuth]);
 
   // Save cart to localStorage whenever items change
   useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(items));
-  }, [items]);
+    const cartKey = getCartKey();
+    localStorage.setItem(cartKey, JSON.stringify(items));
+  }, [items, isAuth]);
+
+  // Clear cart on logout
+  useEffect(() => {
+    const handleLogout = () => {
+      clearCart();
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener('userLogout', handleLogout);
+      return () => window.removeEventListener('userLogout', handleLogout);
+    }
+  }, []);
 
   const addItem = (item: CartItem) => {
     setItems(prev => {
@@ -71,6 +103,8 @@ export function CartProvider({ children }: CartProviderProps) {
 
   const clearCart = () => {
     setItems([]);
+    const cartKey = getCartKey();
+    localStorage.removeItem(cartKey);
   };
 
   const isInCart = (id: number) => {

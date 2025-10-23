@@ -59,6 +59,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     removeToken();
     setIsAuth(false);
     setIsLoading(false);
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent('userLogout'));
+    }
   };
 
   useEffect(() => {
