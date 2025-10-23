@@ -32,22 +32,20 @@ const UserNavbar = ({ albumTitle }: { albumTitle?: string }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center gap-4">
-              <SiPhotopea className="text-slate-700 text-2xl mr-2" />
-              <div className="flex flex-col">
-                {isAlbumPage ? (
-                  <>
-                    <span className="text-slate-700 font-semibold text-xl">{albumTitle || `Album`}</span>
-                    <span className="text-slate-500 text-sm">Nazwa Firmy</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="text-slate-700 font-semibold text-xl">Twoje kolekcje zdjęć</span>
-                    <span className="text-slate-700 text-sm">Nazwa Firmy</span>
-                  </>
-                )}
-              </div>
-            </Link>
+            <SiPhotopea className="text-slate-700 text-2xl mr-2" />
+            <div className="flex flex-col">
+              {isAlbumPage ? (
+                <>
+                  <span className="text-slate-700 font-semibold text-xl">{albumTitle || `Album`}</span>
+                  <span className="text-slate-500 text-sm">Nazwa Firmy</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-slate-700 font-semibold text-xl">Twoje kolekcje zdjęć</span>
+                  <span className="text-slate-700 text-sm">Nazwa Firmy</span>
+                </>
+              )}
+            </div>
           </div>
           
           <div className="hidden md:flex items-center space-x-4">
