@@ -61,6 +61,19 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
         });
     };
 
+    const handleSelectAll = () => {
+        const allPhotoIds = albumData.photos.map(photo => photo.id);
+        const allSelected = allPhotoIds.every(id => selectedPhotos.includes(id));
+        
+        if (allSelected) {
+            // Deselect all
+            setSelectedPhotos([]);
+        } else {
+            // Select all
+            setSelectedPhotos(allPhotoIds);
+        }
+    };
+
     if (loading) {
         return <div className="flex justify-center items-center h-screen">Loading album...</div>;
     }
@@ -96,9 +109,16 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
 
                 <div className="mb-8 flex flex-row gap-2 justify-between">
                     <div className="flex flex-row gap-2">
-                        <button className="flex items-center px-4 py-2 bg-white rounded-md border border-slate-300 font-medium text-slate-600 hover:text-slate-900">
+                        <button 
+                            onClick={handleSelectAll}
+                            className="flex items-center px-4 py-2 bg-white rounded-md border border-slate-300 font-medium text-slate-600 hover:text-slate-900"
+                        >
                             <IoIosCheckmarkCircle className="mr-2" />
-                            <span>Zaznacz wszystkie</span>
+                            <span>
+                                {albumData.photos.length > 0 && selectedPhotos.length === albumData.photos.length 
+                                    ? 'Odznacz wszystkie' 
+                                    : 'Zaznacz wszystkie'}
+                            </span>
                         </button>
                         <button className="flex items-center px-4 py-2 bg-white rounded-md border border-slate-300 font-medium text-slate-600 hover:text-slate-900">
                             <FaFilter className="mr-2" />
