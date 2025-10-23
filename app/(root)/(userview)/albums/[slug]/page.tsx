@@ -92,10 +92,6 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
                     </Link>
 
                     <div className="flex items-center gap-4">
-                        <button className="flex items-center transition-all duration-200 px-4 py-2 rounded-md text-slate-300 hover:text-slate-700 pointer-events-auto">
-                            <FaShare className="mr-2" />
-                            <span>Udostępnij</span>
-                        </button>
                         <div className="flex items-center h-8 px-4 bg-slate-200 rounded-2xl text-slate-700">
                             <IoIosCheckmarkCircle className="mr-2" />
                             <span>Zaznaczone: {selectedPhotos.length}</span>
