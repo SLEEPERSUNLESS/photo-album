@@ -28,6 +28,7 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
     const [selectedPhotos, setSelectedPhotos] = useState<number[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [enlargedPhoto, setEnlargedPhoto] = useState<Photo | null>(null);
     const { addItem, isInCart, getTotalItems } = useCart();
 
     useEffect(() => {
@@ -54,6 +55,19 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
         }
     }, [slug]);
 
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape' && enlargedPhoto) {
+                handleCloseEnlarged();
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [enlargedPhoto]);
+
     const handlePhotoSelect = (photoId: number) => {
         setSelectedPhotos(prev => {
             if (prev.includes(photoId)) {
@@ -69,10 +83,8 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
         const allSelected = allPhotoIds.every(id => selectedPhotos.includes(id));
         
         if (allSelected) {
-            // Deselect all
             setSelectedPhotos([]);
         } else {
-            // Select all
             setSelectedPhotos(allPhotoIds);
         }
     };
@@ -90,8 +102,15 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
                 });
             }
         });
-        // Clear selection after adding to cart
         setSelectedPhotos([]);
+    };
+
+    const handlePhotoEnlarge = (photo: Photo) => {
+        setEnlargedPhoto(photo);
+    };
+
+    const handleCloseEnlarged = () => {
+        setEnlargedPhoto(null);
     };
 
     if (loading) {
@@ -147,10 +166,18 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
                     </div>
                     <div className="flex flex-row items-center gap-2">
                         <span>Widok: </span>
-                        <button className="flex items-center p-2 bg-slate-200 rounded-md border-none font-medium">
+                        <button
+                            className="flex items-center p-2 bg-slate-200 rounded-md border-none font-medium"
+                            aria-label="Widok siatki"
+                            title="Widok siatki"
+                        >
                             <HiMiniSquares2X2 />
                         </button>
-                        <button className="flex items-center p-2 rounded-md border-none font-medium">
+                        <button
+                            className="flex items-center p-2 rounded-md border-none font-medium"
+                            aria-label="Widok listy"
+                            title="Widok listy"
+                        >
                             <FaList />
                         </button>
                     </div>
@@ -159,16 +186,25 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {albumData.photos.map((photo) => (
                         <div key={photo.id} className="group relative aspect-square bg-slate-200 rounded-md shadow-sm overflow-hidden">
-                            <div className="absolute inset-0 transition-opacity ease-out duration-500 bg-gradient-to-t from-slate-900 to-transparent to-30% opacity-0 group-hover:opacity-50"></div>
-                            <span className="absolute bottom-4 right-1/3 text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">Powiększ mnie</span>
+                            {/* Bottom hover gradient overlay (doesn't block clicks) */}
+                            <div className="pointer-events-none absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"></div>
+                            <span className="pointer-events-none absolute bottom-4 right-1/3 text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30">Powiększ mnie</span>
                             <input
                                 type="checkbox"
                                 id={`photo-${photo.id}`}
                                 checked={selectedPhotos.includes(photo.id)}
                                 onChange={() => handlePhotoSelect(photo.id)}
-                                className="absolute top-2 right-2 w-4 h-4 text-slate-100 bg-slate-50 border-slate-300 rounded-sm"
+                                className="absolute top-2 right-2 w-4 h-4 text-slate-100 bg-slate-50 border-slate-300 rounded-sm z-40"
+                                aria-label={`Zaznacz zdjęcie ${photo.title || ''}`}
+                                title="Zaznacz zdjęcie"
                             />
-                            <img src={photo.url} alt={photo.title || "Album photo"} className="w-full h-full object-cover" />
+                            <button
+                                onClick={() => handlePhotoEnlarge(photo)}
+                                className="absolute inset-0 w-full h-full cursor-default z-10"
+                                aria-label={`Powiększ zdjęcie ${photo.title || 'bez tytułu'}`}
+                            >
+                                <img src={photo.url} alt={photo.title || "Album photo"} className="w-full h-full object-cover" />
+                            </button>
                         </div>
                     ))}
                 </div>
@@ -187,6 +223,35 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
                     </div>
                 </div>
             </div>
+
+            {/* Enlarged Photo Modal */}
+            {enlargedPhoto && (
+                <div 
+                    className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                    onClick={handleCloseEnlarged}
+                >
+                    <div className="relative max-w-4xl max-h-full p-4">
+                        <button
+                            onClick={handleCloseEnlarged}
+                            className="absolute top-2 right-2 text-white text-2xl hover:text-gray-300 z-10"
+                            aria-label="Zamknij powiększone zdjęcie"
+                        >
+                            ×
+                        </button>
+                        <img
+                            src={enlargedPhoto.url}
+                            alt={enlargedPhoto.title || "Powiększone zdjęcie"}
+                            className="max-w-full max-h-full object-contain"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                        {enlargedPhoto.title && (
+                            <div className="absolute bottom-4 left-4 text-white text-lg font-medium bg-black bg-opacity-50 px-3 py-1 rounded">
+                                {enlargedPhoto.title}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
