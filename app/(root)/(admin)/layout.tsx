@@ -22,12 +22,12 @@ export default function AdminLayout({
         if (mounted && me?.is_staff) setAllowed(true);
         else if (mounted) {
           setAllowed(false);
-          router.replace("/");
+          router.replace("/albums");
         }
       } catch (e) {
         if (mounted) {
           setAllowed(false);
-          router.replace("/");
+          router.replace("/albums");
         }
       }
     })();

@@ -85,7 +85,7 @@ export default function Home() {
                       alert('Nie udało się wysłać kodu');
                     }
                   }}
-                  className="w-full h-10 rounded-md bg-slate-700 text-slate-50 border border-slate-50 mt-4"
+                  className="w-full h-10 rounded-md bg-slate-700 text-slate-50 border border-slate-50 mt-4 cursor-pointer"
                 >
                   Wyślij kod
                 </button>
