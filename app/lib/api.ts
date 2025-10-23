@@ -19,9 +19,14 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
   const skipAuth = Boolean(optAny.skipAuth);
 
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...(options.headers as Record<string, string> || {}),
   };
+
+  // Only set JSON content-type if body isn't FormData and caller hasn't set it
+  const isFormData = typeof window !== 'undefined' && options.body instanceof FormData;
+  if (!isFormData && !('Content-Type' in headers)) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   // Attach Authorization for all requests unless explicitly skipped.
   // Auth flows like request_code/verify_code should pass { skipAuth: true }.

@@ -17,7 +17,7 @@ export default function Dashboard() {
   const [accessList, setAccessList] = useState<{id:number;email:string}[]>([]);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [newOwnerEmail, setNewOwnerEmail] = useState("");
+  const [newThumbnail, setNewThumbnail] = useState<File | null>(null);
   const [creating, setCreating] = useState(false);
 
   async function load() {
@@ -193,7 +193,11 @@ export default function Dashboard() {
               if (!newTitle.trim()) { setMessage('Tytuł jest wymagany'); return; }
               setCreating(true);
               try {
-                const r = await apiFetch('/albums/', { method: 'POST', body: JSON.stringify({ title: newTitle, description: newDescription, owner_email: newOwnerEmail || undefined }) });
+                const form = new FormData();
+                form.append('title', newTitle);
+                if (newDescription) form.append('description', newDescription);
+                if (newThumbnail) form.append('thumbnail', newThumbnail);
+                const r = await apiFetch('/albums/', { method: 'POST', body: form });
                 if (!r.ok) {
                   const d = await r.json().catch(() => ({}));
                   throw new Error(d?.detail || 'Błąd tworzenia');
@@ -203,7 +207,7 @@ export default function Dashboard() {
                 await load();
                 setAlbumSlug(created.slug);
                 setTab('assign');
-                setNewTitle(''); setNewDescription(''); setNewOwnerEmail('');
+                setNewTitle(''); setNewDescription(''); setNewThumbnail(null);
               } catch (err:any) {
                 setMessage(err?.message || 'Błąd');
               } finally {
@@ -221,9 +225,9 @@ export default function Dashboard() {
               <textarea id="desc" value={newDescription} onChange={(e)=>setNewDescription(e.target.value)} className="w-full border p-2 rounded" placeholder="Krótki opis" />
             </div>
             <div>
-              <label htmlFor="ownerEmail" className="block text-sm text-slate-700">E-mail właściciela (opcjonalnie)</label>
-              <input id="ownerEmail" type="email" value={newOwnerEmail} onChange={(e)=>setNewOwnerEmail(e.target.value)} className="w-full border p-2 rounded" placeholder="owner@example.com" />
-              <p className="text-xs text-slate-500 mt-1">Pozostaw puste, aby ustawić Ciebie jako właściciela.</p>
+              <label htmlFor="thumb" className="block text-sm text-slate-700">Miniaturka (opcjonalnie)</label>
+              <input id="thumb" type="file" accept="image/*" onChange={(e)=>setNewThumbnail(e.target.files?.[0] || null)} className="w-full" />
+              <p className="text-xs text-slate-500 mt-1">Obsługiwane formaty: JPG, PNG, itp.</p>
             </div>
             {message && <p className="text-sm text-red-600">{message}</p>}
             <button disabled={creating} className="px-4 py-2 bg-slate-700 text-white rounded disabled:opacity-60">{creating ? 'Tworzenie…' : 'Utwórz album'}</button>
