@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react";
 import { use } from 'react';
 import Link from "next/link";
 import { apiFetch } from '../../../../lib/api';
-import { FaArrowLeft, FaShare, FaDownload } from "react-icons/fa";
+import { useCart } from '../../../../lib/CartProvider';
+import { FaArrowLeft, FaShare, FaDownload, FaShoppingCart } from "react-icons/fa";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { FaFilter, FaList } from "react-icons/fa6";
 import { HiMiniSquares2X2 } from "react-icons/hi2";
@@ -17,6 +18,7 @@ interface Photo {
 }
 
 interface AlbumData {
+    title?: string;
     photos: Photo[];
 }
 
@@ -26,6 +28,7 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
     const [selectedPhotos, setSelectedPhotos] = useState<number[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { addItem, isInCart, getTotalItems } = useCart();
 
     useEffect(() => {
         const fetchAlbumPhotos = async () => {
@@ -37,7 +40,7 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
                 }
 
                 const data = await response.json();
-                setAlbumData({ photos: data });
+                setAlbumData({ title: data.title, photos: data.photos || data });
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching album photos:', error);
