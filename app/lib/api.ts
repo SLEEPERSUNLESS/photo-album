@@ -23,8 +23,9 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
     ...(options.headers as Record<string, string> || {}),
   };
 
-  const isAuthPath = typeof path === 'string' && path.includes('/api/auth/');
-  if (token && !skipAuth && !isAuthPath) {
+  // Attach Authorization for all requests unless explicitly skipped.
+  // Auth flows like request_code/verify_code should pass { skipAuth: true }.
+  if (token && !skipAuth) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 

@@ -1,27 +1,41 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { SiPhotopea } from 'react-icons/si';
 import { FaUser, FaShoppingCart } from 'react-icons/fa';
 import { IoMdMenu, IoMdClose } from 'react-icons/io';
 import { apiFetch } from '@/app/lib/api';
 import { useCart } from '@/app/lib/CartProvider';
 import TokenTimer from './TokenTimer';
+import { isAuthenticated } from '@/app/lib/auth';
 
-const AdminNavbar = () => {
+type Props = {
+  albumTitle?: string;
+};
+
+export default function Navbar({ albumTitle }: Props) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const pathname = usePathname();
   const { getTotalItems } = useCart();
+  const auth = isAuthenticated();
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
+  const isAlbumView = useMemo(() => {
+    return Boolean(albumTitle);
+  }, [albumTitle]);
+
+  const toggleMenu = () => setIsMenuOpen((v) => !v);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
       try {
+        if (!auth) {
+          if (mounted) setIsAdmin(false);
+          return;
+        }
         const r = await apiFetch('/api/auth/me/');
         const me = await r.json();
         if (mounted) setIsAdmin(!!me?.is_staff);
@@ -32,7 +46,7 @@ const AdminNavbar = () => {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [auth, pathname]);
 
   return (
     <nav className="bg-white shadow-md w-full">
@@ -41,10 +55,22 @@ const AdminNavbar = () => {
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <SiPhotopea className="text-slate-700 text-2xl mr-2" />
-              <span className="text-slate-700 font-semibold text-xl">Nazwa firmy - admin</span>
             </Link>
+            <div className="flex flex-col">
+              {isAlbumView ? (
+                <>
+                  <span className="text-slate-700 font-semibold text-xl">{albumTitle}</span>
+                  <span className="text-slate-500 text-sm">Nazwa Firmy</span>
+                </>
+              ) : (
+                <>
+                  <span className="text-slate-700 font-semibold text-xl">Twoje kolekcje zdjęć</span>
+                  <span className="text-slate-700 text-sm">Nazwa Firmy</span>
+                </>
+              )}
+            </div>
           </div>
-          
+
           <div className="hidden md:flex items-center space-x-4">
             {isAdmin && (
               <Link href="/dashboard" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
@@ -63,6 +89,7 @@ const AdminNavbar = () => {
                 </span>
               )}
             </Link>
+            <TokenTimer />
             <Link href="/" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
               Zamówienia
             </Link>
@@ -70,17 +97,22 @@ const AdminNavbar = () => {
               <FaUser className="inline mr-1" />
               Profil
             </Link>
-            <TokenTimer />
             {isAdmin && (
               <span className="ml-2 px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 border border-green-200">
                 Admin
               </span>
             )}
-            <Link href="/logout" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
-              Wyloguj
-            </Link>
+            {auth ? (
+              <Link href="/logout" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
+                Wyloguj
+              </Link>
+            ) : (
+              <Link href="/" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
+                Zaloguj
+              </Link>
+            )}
           </div>
-          
+
           <div className="md:hidden flex items-center">
             <button
               onClick={toggleMenu}
@@ -117,29 +149,33 @@ const AdminNavbar = () => {
                 </span>
               )}
             </Link>
-            <Link href="/orders" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
-              Zamówienia
-            </Link>
-            <Link href="/profile" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
-              <FaUser className="inline mr-1" />
-              Profil
-            </Link>
             <div className="px-3 py-2">
               <TokenTimer />
             </div>
+            <Link href="/" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
+              Zamówienia
+            </Link>
+            <Link href="/" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
+              <FaUser className="inline mr-1" />
+              Profil
+            </Link>
             {isAdmin && (
               <div className="px-3 py-2 text-xs text-green-800 bg-green-50 rounded-md border border-green-200 inline-block">
                 Admin
               </div>
             )}
-            <Link href="/logout" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
-              Wyloguj
-            </Link>
+            {auth ? (
+              <Link href="/logout" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
+                Wyloguj
+              </Link>
+            ) : (
+              <Link href="/" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
+                Zaloguj
+              </Link>
+            )}
           </div>
         </div>
       )}
     </nav>
   );
-};
-
-export default AdminNavbar;
+}

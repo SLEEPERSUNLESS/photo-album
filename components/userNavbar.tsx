@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SiPhotopea } from 'react-icons/si';
@@ -13,6 +13,7 @@ import TokenTimer from './TokenTimer';
 
 const UserNavbar = ({ albumTitle }: { albumTitle?: string }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const pathname = usePathname();
   const { getTotalItems } = useCart();
   
@@ -28,6 +29,23 @@ const UserNavbar = ({ albumTitle }: { albumTitle?: string }) => {
     removeToken();
     window.location.href = '/';
   }
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        if (!auth) return;
+        const r = await apiFetch('/api/auth/me/');
+        const me = await r.json();
+        if (mounted) setIsAdmin(!!me?.is_staff);
+      } catch (e) {
+        if (mounted) setIsAdmin(false);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [auth]);
 
   return (
     <nav className="bg-white shadow-md w-full">
@@ -56,6 +74,11 @@ const UserNavbar = ({ albumTitle }: { albumTitle?: string }) => {
                 <Link href="/albums" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
                   Albumy
                 </Link>
+                {isAdmin && (
+                  <Link href="/dashboard" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
+                    Panel
+                  </Link>
+                )}
                 <Link href="/cart" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium relative">
                   <FaShoppingCart className="inline mr-1" />
                   Koszyk
@@ -109,6 +132,11 @@ const UserNavbar = ({ albumTitle }: { albumTitle?: string }) => {
             <Link href="/albums" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
               Albumy
             </Link>
+            {auth && isAdmin && (
+              <Link href="/dashboard" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
+                Panel
+              </Link>
+            )}
             <Link href="/cart" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium relative">
               <FaShoppingCart className="inline mr-1" />
               Koszyk

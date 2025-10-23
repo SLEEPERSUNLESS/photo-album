@@ -1,6 +1,6 @@
 'use client';
 
-import UserNavbar from "@/components/userNavbar";
+import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
@@ -28,7 +28,7 @@ export default function UserViewLayout({
   return (
     <AuthGuard>
       <div className="user-view-layout flex flex-col min-h-screen">
-        <UserNavbar albumTitle={albumTitle} />
+        <Navbar albumTitle={albumTitle} />
         <div className="flex-grow">{children}</div>
         <Footer />
       </div>
