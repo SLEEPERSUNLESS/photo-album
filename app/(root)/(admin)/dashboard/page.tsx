@@ -2,19 +2,19 @@
 
 import React, { useEffect, useState } from "react";
 import { apiFetch } from "../../../lib/api";
+import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 type AllowedEntry = { id: string | number; email: string; is_active?: boolean; created_at?: string | null; is_admin?: boolean; type?: 'allowed' | 'admin' };
 
 export default function Dashboard() {
-  const [tab, setTab] = useState<'accounts'|'create'|'assign'|'albums'>('accounts');
+  const searchParams = useSearchParams();
+  const [tab, setTab] = useState<'accounts'|'albums'>('accounts');
   const [list, setList] = useState<AllowedEntry[]>([]);
   const [allowEmail, setAllowEmail] = useState("");
-  const [accessEmail, setAccessEmail] = useState("");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [albums, setAlbums] = useState<any[]>([]);
-  const [albumSlug, setAlbumSlug] = useState<string>("");
-  const [accessList, setAccessList] = useState<{id:number;email:string}[]>([]);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
   const [newThumbnail, setNewThumbnail] = useState<File | null>(null);
@@ -34,9 +34,6 @@ export default function Dashboard() {
       const da = await ra.json();
       const rows = Array.isArray(da?.results) ? da.results : [];
       setAlbums(rows);
-      if (!albumSlug && rows.length) {
-        setAlbumSlug(rows[0].slug);
-      }
     } catch (e) {
       setMessage("Nie udało się pobrać listy");
     } finally {
@@ -47,6 +44,12 @@ export default function Dashboard() {
   useEffect(() => {
     load();
   }, []);
+
+  // initialize tab from query params if present
+  useEffect(() => {
+    const t = searchParams.get('tab');
+    if (t === 'albums' || t === 'accounts') setTab(t as any);
+  }, [searchParams]);
 
   async function addEmail(e: React.FormEvent) {
     e.preventDefault();
@@ -79,43 +82,7 @@ export default function Dashboard() {
     }
   }
 
-  // Album access management
-  async function loadAccess(slug: string) {
-    try {
-      const r = await apiFetch(`/albums/${slug}/access/`);
-      const data = await r.json();
-      setAccessList(Array.isArray(data) ? data : []);
-    } catch (e) {
-      setAccessList([]);
-    }
-  }
-
-  useEffect(() => {
-    if (albumSlug) loadAccess(albumSlug);
-  }, [albumSlug]);
-
-  async function addAccess(e: React.FormEvent) {
-    e.preventDefault();
-    if (!albumSlug || !accessEmail || !accessEmail.includes('@')) return;
-    try {
-      const r = await apiFetch(`/albums/${albumSlug}/access/`, { method: 'POST', body: JSON.stringify({ email: accessEmail }) });
-      if (!r.ok) throw new Error('Nie udało się dodać dostępu');
-      setAccessEmail('');
-      await loadAccess(albumSlug);
-    } catch (err:any) {
-      setMessage(err?.message || 'Błąd');
-    }
-  }
-
-  async function removeAccess(id: number) {
-    try {
-      const r = await apiFetch(`/albums/${albumSlug}/access/${id}/`, { method: 'DELETE' });
-      if (!r.ok && r.status !== 204) throw new Error('Nie udało się usunąć');
-      await loadAccess(albumSlug);
-    } catch (err:any) {
-      setMessage(err?.message || 'Błąd');
-    }
-  }
+  // Album access management moved to per-album page
 
   return (
     <div className="max-w-4xl mx-auto p-6">
@@ -123,8 +90,6 @@ export default function Dashboard() {
 
       <div className="mb-6 flex gap-2 border-b">
         <button onClick={() => setTab('accounts')} className={`px-3 py-2 ${tab==='accounts' ? 'border-b-2 border-slate-700 font-semibold' : 'text-slate-600'}`}>Konta</button>
-        <button onClick={() => setTab('create')} className={`px-3 py-2 ${tab==='create' ? 'border-b-2 border-slate-700 font-semibold' : 'text-slate-600'}`}>Nowy album</button>
-  <button onClick={() => setTab('assign')} className={`px-3 py-2 ${tab==='assign' ? 'border-b-2 border-slate-700 font-semibold' : 'text-slate-600'}`}>Dostępy do albumów</button>
   <button onClick={() => setTab('albums')} className={`px-3 py-2 ${tab==='albums' ? 'border-b-2 border-slate-700 font-semibold' : 'text-slate-600'}`}>Albumy</button>
       </div>
 
@@ -187,132 +152,16 @@ export default function Dashboard() {
         </section>
       )}
 
-      {tab === 'create' && (
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-2">Utwórz nowy album</h2>
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-              setMessage(null);
-              if (!newTitle.trim()) { setMessage('Tytuł jest wymagany'); return; }
-              setCreating(true);
-              try {
-                const form = new FormData();
-                form.append('title', newTitle);
-                if (newDescription) form.append('description', newDescription);
-                if (newThumbnail) form.append('thumbnail', newThumbnail);
-                const r = await apiFetch('/albums/', { method: 'POST', body: form });
-                if (!r.ok) {
-                  const d = await r.json().catch(() => ({}));
-                  throw new Error(d?.detail || 'Błąd tworzenia');
-                }
-                const created = await r.json();
-                // refresh albums and switch to assign tab for quick access management
-                await load();
-                setAlbumSlug(created.slug);
-                setTab('assign');
-                setNewTitle(''); setNewDescription(''); setNewThumbnail(null);
-              } catch (err:any) {
-                setMessage(err?.message || 'Błąd');
-              } finally {
-                setCreating(false);
-              }
-            }}
-            className="space-y-3"
-          >
-            <div>
-              <label htmlFor="title" className="block text-sm text-slate-700">Tytuł</label>
-              <input id="title" value={newTitle} onChange={(e)=>setNewTitle(e.target.value)} className="w-full border p-2 rounded" placeholder="Nazwa albumu" />
-            </div>
-            <div>
-              <label htmlFor="desc" className="block text-sm text-slate-700">Opis (opcjonalnie)</label>
-              <textarea id="desc" value={newDescription} onChange={(e)=>setNewDescription(e.target.value)} className="w-full border p-2 rounded" placeholder="Krótki opis" />
-            </div>
-            <div>
-              <label htmlFor="thumb" className="block text-sm text-slate-700">Miniaturka (opcjonalnie)</label>
-              <input id="thumb" type="file" accept="image/*" onChange={(e)=>setNewThumbnail(e.target.files?.[0] || null)} className="w-full" />
-              <p className="text-xs text-slate-500 mt-1">Obsługiwane formaty: JPG, PNG, itp.</p>
-            </div>
-            {message && <p className="text-sm text-red-600">{message}</p>}
-            <button disabled={creating} className="px-4 py-2 bg-slate-700 text-white rounded disabled:opacity-60">{creating ? 'Tworzenie…' : 'Utwórz album'}</button>
-          </form>
-        </section>
-      )}
+      {/* create tab removed; creation now lives at /dashboard/albums/new */}
 
-      {tab === 'assign' && (
-        <section className="mb-8">
-          <h2 className="text-xl font-semibold mb-2">Dostęp do albumów</h2>
-          <div className="flex items-center gap-2 mb-4">
-            <label htmlFor="albumSelect" className="text-slate-700 text-sm">Album:</label>
-            <select
-              id="albumSelect"
-              value={albumSlug}
-              onChange={(e) => setAlbumSlug(e.target.value)}
-              className="border p-2 rounded"
-            >
-              {albums.map((a) => (
-                <option key={a.slug} value={a.slug}>{a.title}</option>
-              ))}
-            </select>
-          </div>
-          <div className="mb-4 flex items-center gap-2">
-            <label htmlFor="assignThumb" className="text-slate-700 text-sm">Zmień miniaturkę:</label>
-            <input id="assignThumb" type="file" accept="image/*" onChange={async (e)=>{
-              const file = e.target.files?.[0];
-              if (!file || !albumSlug) return;
-              try {
-                const form = new FormData();
-                form.append('thumbnail', file);
-                const r = await apiFetch(`/albums/${albumSlug}/meta/`, { method: 'PATCH', body: form });
-                if (!r.ok) throw new Error('Nie udało się zaktualizować miniaturki');
-                await load();
-              } catch (err:any) {
-                setMessage(err?.message || 'Błąd');
-              } finally {
-                // reset input value so same file can be re-selected if needed
-                e.currentTarget.value = '';
-              }
-            }} />
-          </div>
-          <form onSubmit={addAccess} className="flex gap-2 mb-4">
-            <input
-              type="email"
-              value={accessEmail}
-              onChange={(e) => setAccessEmail(e.target.value)}
-              placeholder="user@example.com"
-              className="flex-1 border p-2 rounded"
-            />
-            <button className="px-4 py-2 bg-slate-700 text-white rounded">Dodaj dostęp</button>
-          </form>
-          <table className="w-full text-left border">
-            <thead>
-              <tr className="bg-slate-50">
-                <th className="p-2 border">E-mail</th>
-                <th className="p-2 border w-24">Akcje</th>
-              </tr>
-            </thead>
-            <tbody>
-              {accessList.map((it) => (
-                <tr key={it.id}>
-                  <td className="p-2 border">{it.email}</td>
-                  <td className="p-2 border">
-                    <button onClick={() => removeAccess(it.id)} className="text-sm text-red-600 hover:underline">Usuń</button>
-                  </td>
-                </tr>
-              ))}
-              {accessList.length === 0 && (
-                <tr>
-                  <td className="p-2 border text-slate-500" colSpan={2}>Brak wpisów</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </section>
-      )}
+      {/* Access tab removed; use per-album "Edytuj dostęp" button in Albums tab */}
 
       {tab === 'albums' && (
         <section className="mb-8">
           <h2 className="text-xl font-semibold mb-2">Zarządzaj albumami</h2>
+          <div className="mb-4">
+            <Link href="/dashboard/albums/new" className="inline-block px-3 py-2 bg-slate-700 text-white rounded">Utwórz album</Link>
+          </div>
           <table className="w-full text-left border">
             <thead>
               <tr className="bg-slate-50">
@@ -392,6 +241,7 @@ export default function Dashboard() {
                         }}
                         className="px-3 py-1 bg-slate-700 text-white rounded disabled:opacity-60"
                       >Zapisz</button>
+                      <Link href={`/dashboard/albums/${a.slug}/access`} className="px-3 py-1 border rounded">Edytuj dostęp</Link>
                       <button
                         onClick={async ()=>{
                           if (!confirm('Usunąć ten album? Tej operacji nie można cofnąć.')) return;
