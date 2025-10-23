@@ -30,16 +30,17 @@ export default function Albums() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalAlbums, setTotalAlbums] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
-  const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(null);
   const [nextPageUrl, setNextPageUrl] = useState<string | null>(null);
   const [previousPageUrl, setPreviousPageUrl] = useState<string | null>(null);
   
   // definicja rozmiaru strony - tylko do kalkulacji, nie zmieniac
   const pageSize = 6;
 
-  const fetchAlbums = async (page: number, search: string = "") => {
+  const fetchAlbums = async (page: number, search: string = "", isSearchUpdate: boolean = false) => {
     try {
-      setLoading(true);
+      if (!isSearchUpdate) {
+        setLoading(true);
+      }
   let url = `/albums/?page=${page}`;
       if (search) {
         url += `&search=${encodeURIComponent(search)}`;
@@ -63,17 +64,26 @@ export default function Albums() {
       setTotalPages(Math.ceil(data.count / pageSize));
       setNextPageUrl(data.next);
       setPreviousPageUrl(data.previous);
-      setLoading(false);
+      if (!isSearchUpdate) {
+        setLoading(false);
+      }
     } catch (error) {
       console.error('Error fetching albums:', error);
       setError('Failed to load albums. Please try again later.');
-      setLoading(false);
+      if (!isSearchUpdate) {
+        setLoading(false);
+      }
     }
   };
 
   useEffect(() => {
-    fetchAlbums(currentPage, searchQuery);
+    fetchAlbums(currentPage, searchQuery, false);
   }, [currentPage]);
+
+  useEffect(() => {
+    fetchAlbums(1, searchQuery, true);
+    setCurrentPage(1);
+  }, [searchQuery]);
 
 
   // Strzałka na nastepna strone
@@ -189,6 +199,8 @@ export default function Albums() {
                 type="text" 
                 placeholder="Szukaj albumu..." 
                 className="w-full outline-none border-none"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             <button className="h-10 bg-white rounded-md border border-slate-300 p-2">
