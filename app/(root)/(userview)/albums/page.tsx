@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { FaFilter } from "react-icons/fa6";
 import { FaSearch, FaArrowRight, FaCamera, FaAngleLeft, FaAngleRight } from "react-icons/fa";
 import Link from "next/link";
+import { apiFetch } from '../../../lib/api';
 
 interface Album {
   id: number;
@@ -39,14 +40,12 @@ export default function Albums() {
   const fetchAlbums = async (page: number, search: string = "") => {
     try {
       setLoading(true);
-      let url = `http://127.0.0.1:8000/albums/?page=${page}`;
+  let url = `/albums/?page=${page}`;
       if (search) {
         url += `&search=${encodeURIComponent(search)}`;
       }
-      
       console.log(`Fetching albums from: ${url}`);
-      const response = await fetch(url);
-      
+  const response = await apiFetch(url);
       if (!response.ok) {
         throw new Error(`Network response was not ok: ${response.status} ${response.statusText}`);
       }

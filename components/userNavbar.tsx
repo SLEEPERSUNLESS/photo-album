@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -6,6 +6,9 @@ import { usePathname } from 'next/navigation';
 import { SiPhotopea } from 'react-icons/si';
 import { FaUser } from 'react-icons/fa';
 import { IoMdMenu, IoMdClose } from 'react-icons/io';
+import { isAuthenticated, removeToken } from '../app/lib/auth';
+import { apiFetch } from '../app/lib/api';
+import TokenTimer from './TokenTimer';
 
 const UserNavbar = ({ albumTitle }: { albumTitle?: string }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -16,6 +19,13 @@ const UserNavbar = ({ albumTitle }: { albumTitle?: string }) => {
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
+
+  const auth = isAuthenticated();
+
+  function logout() {
+    removeToken();
+    window.location.href = '/';
+  }
 
   return (
     <nav className="bg-white shadow-md w-full">
@@ -41,16 +51,31 @@ const UserNavbar = ({ albumTitle }: { albumTitle?: string }) => {
           </div>
           
           <div className="hidden md:flex items-center space-x-4">
-            <Link href="/albums" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
-              Albumy
-            </Link>
-            <Link href="/" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
-              Zamówienia
-            </Link>
-            <Link href="/" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
-              <FaUser className="inline mr-1" />
-              Profil
-            </Link>
+            {auth && (
+              <>
+                <Link href="/albums" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
+                  Albumy
+                </Link>
+                <TokenTimer />
+                <Link href="/" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
+                  Zamówienia
+                </Link>
+                <Link href="/" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
+                  <FaUser className="inline mr-1" />
+                  Profil
+                </Link>
+              </>
+            )}
+
+            {!auth && (
+              <Link href="/" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
+                Zaloguj
+              </Link>
+            )}
+
+            {auth && (
+              <button onClick={logout} className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">Wyloguj</button>
+            )}
           </div>
           
           <div className="md:hidden flex items-center">

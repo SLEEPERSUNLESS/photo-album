@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { use } from 'react';
 import Link from "next/link";
+import { apiFetch } from '../../../../lib/api';
 import { FaArrowLeft, FaShare, FaDownload } from "react-icons/fa";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { FaFilter, FaList } from "react-icons/fa6";
@@ -30,8 +31,7 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
         const fetchAlbumPhotos = async () => {
             try {
                 setLoading(true);
-                const response = await fetch(`http://localhost:8000/albums/${slug}/`);
-
+                const response = await apiFetch(`/albums/${slug}/`);
                 if (!response.ok) {
                     throw new Error(`Failed to fetch album with slug "${slug}"`);
                 }
