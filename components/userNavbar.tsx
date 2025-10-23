@@ -4,15 +4,17 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SiPhotopea } from 'react-icons/si';
-import { FaUser } from 'react-icons/fa';
+import { FaUser, FaShoppingCart } from 'react-icons/fa';
 import { IoMdMenu, IoMdClose } from 'react-icons/io';
 import { isAuthenticated, removeToken } from '../app/lib/auth';
 import { apiFetch } from '../app/lib/api';
+import { useCart } from '../app/lib/CartProvider';
 import TokenTimer from './TokenTimer';
 
 const UserNavbar = ({ albumTitle }: { albumTitle?: string }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const pathname = usePathname();
+  const { getTotalItems } = useCart();
   
   const isAlbumPage = pathname.includes('/albums/') && pathname !== '/albums';
 
@@ -53,6 +55,15 @@ const UserNavbar = ({ albumTitle }: { albumTitle?: string }) => {
               <>
                 <Link href="/albums" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
                   Albumy
+                </Link>
+                <Link href="/cart" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium relative">
+                  <FaShoppingCart className="inline mr-1" />
+                  Koszyk
+                  {getTotalItems() > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {getTotalItems()}
+                    </span>
+                  )}
                 </Link>
                 <TokenTimer />
                 <Link href="/" className="text-slate-600 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium">
@@ -97,6 +108,15 @@ const UserNavbar = ({ albumTitle }: { albumTitle?: string }) => {
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white">
             <Link href="/albums" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
               Albumy
+            </Link>
+            <Link href="/cart" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium relative">
+              <FaShoppingCart className="inline mr-1" />
+              Koszyk
+              {getTotalItems() > 0 && (
+                <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 inline-flex items-center justify-center">
+                  {getTotalItems()}
+                </span>
+              )}
             </Link>
             <Link href="/" className="text-slate-600 hover:text-slate-900 block px-3 py-2 rounded-md text-base font-medium">
               Zamówienia

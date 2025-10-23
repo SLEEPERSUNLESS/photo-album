@@ -77,6 +77,23 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
         }
     };
 
+    const handleAddToCart = () => {
+        selectedPhotos.forEach(photoId => {
+            const photo = albumData.photos.find(p => p.id === photoId);
+            if (photo && !isInCart(photo.id)) {
+                addItem({
+                    id: photo.id,
+                    title: photo.title,
+                    url: photo.url,
+                    album: photo.album,
+                    albumTitle: albumData.title,
+                });
+            }
+        });
+        // Clear selection after adding to cart
+        setSelectedPhotos([]);
+    };
+
     if (loading) {
         return <div className="flex justify-center items-center h-screen">Loading album...</div>;
     }
@@ -99,9 +116,13 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
                             <IoIosCheckmarkCircle className="mr-2" />
                             <span>Zaznaczone: {selectedPhotos.length}</span>
                         </div>
-                        <button className="flex items-center px-4 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-800">
-                            <FaDownload className="mr-2" />
-                            <span>Kup cały album</span>
+                        <button
+                            onClick={handleAddToCart}
+                            disabled={selectedPhotos.length === 0}
+                            className="flex items-center px-4 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-800 disabled:bg-slate-400"
+                        >
+                            <FaShoppingCart className="mr-2" />
+                            <span>Dodaj do koszyka</span>
                         </button>
                     </div>
                 </div>
@@ -156,10 +177,12 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
                 <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-row justify-between items-center">
                     <div className="checkoutWrapperLeft flex flex-row items-center gap-4">
                         <span className="text-slate-500">Zaznaczone: {selectedPhotos.length}</span>
+                        <span className="text-slate-500">Koszyk: {getTotalItems()} zdjęć</span>
                     </div>
                     <div className="checkoutWrapperRight">
                         <Link href="/cart" className="px-4 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-800 disabled:bg-slate-400">
-                            Przejdź do koszyka
+                            <FaShoppingCart className="mr-2 inline" />
+                            Przejdź do koszyka ({getTotalItems()})
                         </Link>
                     </div>
                 </div>
