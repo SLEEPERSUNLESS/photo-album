@@ -106,13 +106,10 @@ export default function Home() {
                           const r = await apiFetch('/api/auth/verify_code/', ({
                             method: 'POST',
                             body: JSON.stringify({ email: e, code }),
-                            // do not attach Authorization for auth endpoints
                             skipAuth: true,
                           } as any));
                           const data = await r.json();
                           if (r.ok && data.access) {
-                            // store access and refresh if provided
-                            // @ts-ignore
                             if (data.refresh) setTokens(data.access, data.refresh);
                             else setToken(data.access);
                             window.location.href = '/albums';
