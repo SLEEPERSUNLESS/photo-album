@@ -51,7 +51,7 @@ export default function CartPage() {
           </div>
           <button
             onClick={handleClearCart}
-            className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+            className="flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors cursor-pointer"
           >
             <FaTrash className="mr-2" />
             Opróżnij koszyk
@@ -92,7 +92,7 @@ export default function CartPage() {
                   )}
                   <button
                     onClick={() => handleRemoveItem(item.id)}
-                    className="flex items-center px-3 py-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors"
+                    className="flex items-center px-3 py-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors cursor-pointer"
                   >
                     <FaTrash className="mr-1" />
                     Usuń
@@ -119,7 +119,7 @@ export default function CartPage() {
             >
               Kontynuuj zakupy
             </Link>
-            <button className="px-6 py-3 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors">
+            <button className="px-6 py-3 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors cursor-pointer">
               Przejdź do płatności
             </button>
           </div>
