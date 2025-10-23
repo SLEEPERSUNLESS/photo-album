@@ -5,7 +5,7 @@ import { use } from 'react';
 import Link from "next/link";
 import { apiFetch } from '../../../../lib/api';
 import { useCart } from '../../../../lib/CartProvider';
-import { FaArrowLeft, FaShare, FaDownload, FaShoppingCart } from "react-icons/fa";
+import { FaArrowLeft, FaShare, FaDownload, FaShoppingCart, FaArrowRight } from "react-icons/fa";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { FaFilter, FaList } from "react-icons/fa6";
 import { HiMiniSquares2X2 } from "react-icons/hi2";
@@ -57,8 +57,16 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
 
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape' && enlargedPhoto) {
+            if (!enlargedPhoto) return;
+            if (event.key === 'Escape') {
+                event.preventDefault();
                 handleCloseEnlarged();
+            } else if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                handleNext();
+            } else if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                handlePrev();
             }
         };
 
@@ -66,7 +74,23 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
-    }, [enlargedPhoto]);
+    }, [enlargedPhoto, albumData.photos]);
+
+    const handleNext = () => {
+        if (!enlargedPhoto || albumData.photos.length === 0) return;
+        const idx = albumData.photos.findIndex(p => p.id === enlargedPhoto.id);
+        if (idx === -1) return;
+        const nextIdx = (idx + 1) % albumData.photos.length; // loop to first
+        setEnlargedPhoto(albumData.photos[nextIdx]);
+    };
+
+    const handlePrev = () => {
+        if (!enlargedPhoto || albumData.photos.length === 0) return;
+        const idx = albumData.photos.findIndex(p => p.id === enlargedPhoto.id);
+        if (idx === -1) return;
+        const prevIdx = (idx - 1 + albumData.photos.length) % albumData.photos.length; // loop to last
+        setEnlargedPhoto(albumData.photos[prevIdx]);
+    };
 
     const handlePhotoSelect = (photoId: number) => {
         setSelectedPhotos(prev => {
@@ -230,29 +254,41 @@ export default function AlbumDetail({ params }: { params: { slug: string } }) {
             </div>
 
             {enlargedPhoto && (
-                <div 
-                    className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+                <div
+                    className="fixed inset-0 bg-slate-900/70 flex items-center justify-center z-50"
                     onClick={handleCloseEnlarged}
                 >
-                    <div className="relative max-w-4xl max-h-full p-4">
+                    <div className="relative max-w-6xl w-full max-h-full p-4" onClick={(e) => e.stopPropagation()}>
                         <button
                             onClick={handleCloseEnlarged}
-                            className="absolute top-2 right-2 text-white text-2xl hover:text-gray-300 z-10"
+                            className="absolute top-3 right-3 text-white text-2xl hover:text-gray-300 z-10"
                             aria-label="Zamknij powiększone zdjęcie"
                         >
                             ×
                         </button>
+
+                        <button
+                            onClick={(e) => { e.stopPropagation(); handlePrev(); }}
+                            className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full w-12 h-12 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white/50 z-10 cursor-pointer"
+                            aria-label="Poprzednie zdjęcie"
+                        >
+                            <FaArrowLeft />
+                        </button>
+
+                        <button
+                            onClick={(e) => { e.stopPropagation(); handleNext(); }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full w-12 h-12 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white/50 z-10 cursor-pointer"
+                            aria-label="Następne zdjęcie"
+                        >
+                            <FaArrowRight />
+                        </button>
+
                         <img
                             src={enlargedPhoto.url}
                             alt={enlargedPhoto.title || "Powiększone zdjęcie"}
-                            className="max-w-full max-h-full object-contain"
+                            className="mx-auto max-w-full max-h-[80vh] object-contain select-none"
                             onClick={(e) => e.stopPropagation()}
                         />
-                        {enlargedPhoto.title && (
-                            <div className="absolute bottom-4 left-4 text-white text-lg font-medium bg-black bg-opacity-50 px-3 py-1 rounded">
-                                {enlargedPhoto.title}
-                            </div>
-                        )}
                     </div>
                 </div>
             )}
