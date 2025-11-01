@@ -252,7 +252,8 @@ export default function NewAlbumPage() {
                   <button
                     type="button"
                     onClick={removeThumbnail}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                    className="absolute -top-2 -right-2 bg-gray-600 hover:bg-gray-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-sm transition-colors"
+                    title="Usuń miniaturkę"
                   >
                     ×
                   </button>
@@ -299,9 +300,7 @@ export default function NewAlbumPage() {
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
               photosDragOver 
                 ? 'border-blue-500 bg-blue-50' 
-                : photos.length > 0
-                  ? 'border-green-300 bg-green-50'
-                  : 'border-gray-300 hover:border-gray-400'
+                : 'border-gray-300 hover:border-gray-400'
             }`}
             onDragOver={handlePhotosDragOver}
             onDragLeave={handlePhotosDragLeave}
@@ -363,7 +362,8 @@ export default function NewAlbumPage() {
                     <button
                       type="button"
                       onClick={() => removePhoto(photo.id)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                      className="absolute top-1 right-1 bg-gray-600 hover:bg-gray-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-sm transition-colors"
+                      title="Usuń zdjęcie"
                     >
                       ×
                     </button>
@@ -376,19 +376,19 @@ export default function NewAlbumPage() {
 
         {message && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-md">{message}</p>}
         
-        <div className="flex gap-4 pt-4">
-          <button 
-            disabled={creating} 
-            className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed font-medium"
-          >
-            {creating ? 'Tworzenie albumu...' : 'Utwórz album'}
-          </button>
+        <div className="flex justify-end gap-4 pt-4">
           <Link 
             href="/dashboard?tab=albums" 
-            className="px-6 py-3 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
           >
             Anuluj
           </Link>
+          <button 
+            disabled={creating} 
+            className="px-4 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed font-medium"
+          >
+            {creating ? 'Tworzenie albumu...' : 'Utwórz album'}
+          </button>
         </div>
       </form>
     </div>
