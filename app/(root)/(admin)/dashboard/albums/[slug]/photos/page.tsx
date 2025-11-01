@@ -206,7 +206,7 @@ export default function AlbumPhotosPage() {
 
       <div className="mb-6">
         <div 
-          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
             dragOver 
               ? 'border-blue-500 bg-blue-50' 
               : 'border-gray-300 hover:border-gray-400'
@@ -214,6 +214,7 @@ export default function AlbumPhotosPage() {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
         >
           <div className="space-y-4">
             <div>

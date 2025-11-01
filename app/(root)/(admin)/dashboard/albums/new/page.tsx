@@ -197,7 +197,7 @@ export default function NewAlbumPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
+    <div className="max-w-5xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Nowy album</h1>
       <form onSubmit={onSubmit} className="space-y-6">
         {/* Title and Description */}
@@ -234,11 +234,12 @@ export default function NewAlbumPage() {
                 ? 'border-blue-500 bg-blue-50' 
                 : thumbnail 
                   ? 'border-green-300 bg-green-50'
-                  : 'border-gray-300 hover:border-gray-400'
+                  : 'border-gray-300 hover:border-gray-400 cursor-pointer'
             }`}
             onDragOver={handleThumbnailDragOver}
             onDragLeave={handleThumbnailDragLeave}
             onDrop={handleThumbnailDrop}
+            onClick={!thumbnail ? () => thumbnailInputRef.current?.click() : undefined}
           >
             {thumbnail ? (
               <div className="space-y-4">
@@ -295,7 +296,7 @@ export default function NewAlbumPage() {
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">Zdjęcia albumu (opcjonalnie)</label>
           <div 
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
               photosDragOver 
                 ? 'border-blue-500 bg-blue-50' 
                 : photos.length > 0
@@ -305,6 +306,7 @@ export default function NewAlbumPage() {
             onDragOver={handlePhotosDragOver}
             onDragLeave={handlePhotosDragLeave}
             onDrop={handlePhotosDrop}
+            onClick={() => photosInputRef.current?.click()}
           >
             <div className="space-y-4">
               <div>
