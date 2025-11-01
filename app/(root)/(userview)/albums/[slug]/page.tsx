@@ -255,13 +255,13 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
 
             {enlargedPhoto && (
                 <div
-                    className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+                    className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60]"
                     onClick={handleCloseEnlarged}
                 >
                     {/* Navigation arrows anchored to viewport */}
                     <button
                         onClick={(e) => { e.stopPropagation(); handlePrev(); }}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full w-12 h-12 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white/50 z-20"
+                        className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full w-12 h-12 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white/50 z-[70]"
                         aria-label="Poprzednie zdjęcie"
                     >
                         <FaArrowLeft />
@@ -269,7 +269,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
 
                     <button
                         onClick={(e) => { e.stopPropagation(); handleNext(); }}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full w-12 h-12 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white/50 z-20"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full w-12 h-12 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white/50 z-[70]"
                         aria-label="Następne zdjęcie"
                     >
                         <FaArrowRight />
@@ -284,7 +284,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                         />
                         <button
                             onClick={handleCloseEnlarged}
-                            className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl leading-none z-30"
+                            className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl leading-none z-[70]"
                             aria-label="Zamknij powiększone zdjęcie"
                         >
                             ×
