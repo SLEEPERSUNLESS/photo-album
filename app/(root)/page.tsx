@@ -85,7 +85,7 @@ export default function Home() {
                       alert('Nie udało się wysłać kodu');
                     }
                   }}
-                  className="w-full h-10 rounded-md bg-slate-700 text-slate-50 border border-slate-50 mt-4 cursor-pointer"
+                  className="w-full h-10 rounded-md bg-slate-700 text-slate-50 border border-slate-50 mt-4"
                 >
                   Wyślij kod
                 </button>
@@ -120,7 +120,7 @@ export default function Home() {
                           alert('Weryfikacja nie powiodła się');
                         }
                       }}
-                      className="h-10 px-4 rounded-md bg-slate-700 text-white cursor-pointer"
+                      className="h-10 px-4 rounded-md bg-slate-700 text-white"
                     >
                       Potwierdź
                     </button>
@@ -145,7 +145,7 @@ export default function Home() {
               </button>
             </div>
             <div className="helpButton flex flex-row w-full items-center justify-center mt-2">
-              <span className="text-slate-400 text-sm">Potrzebujesz pomocy? <span className="text-slate-700 underline cursor-pointer">Skontaktuj</span> się z nami</span>
+              <span className="text-slate-400 text-sm">Potrzebujesz pomocy? <span className="text-slate-700 underline">Skontaktuj</span> się z nami</span>
             </div>
           </div>
         </div>

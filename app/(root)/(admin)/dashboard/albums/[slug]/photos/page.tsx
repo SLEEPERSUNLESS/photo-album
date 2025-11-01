@@ -71,10 +71,15 @@ export default function AlbumPhotosPage() {
         <Link href="/dashboard?tab=albums" className="underline">← Wróć do listy</Link>
       </div>
 
-      <div className="mb-4">
-        <label htmlFor="files" className="block text-sm text-slate-700">Dodaj zdjęcia (wiele)</label>
-        <input id="files" type="file" accept="image/*" multiple onChange={(e)=>setFiles(e.target.files)} />
-        <button disabled={uploading} onClick={upload} className="ml-2 px-3 py-2 bg-slate-700 text-white rounded disabled:opacity-60">{uploading ? 'Wysyłanie…' : 'Wyślij'}</button>
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex flex-col">
+          <label htmlFor="files" className="inline-block px-4 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors cursor-pointer">Dodaj zdjęcia</label>
+          <input id="files" type="file" accept="image/*" multiple className="hidden" onChange={(e)=>setFiles(e.target.files)} />
+          {files && files.length > 0 && (
+            <span className="text-sm text-slate-600 mt-1">{files.length} plików wybranych</span>
+          )}
+        </div>
+        <button disabled={uploading || !files || files.length === 0} onClick={upload} className="px-4 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors disabled:opacity-60">{uploading ? 'Dodawanie…' : 'Dodaj'}</button>
       </div>
 
       {message && <p className="text-sm text-red-600 mb-2">{message}</p>}

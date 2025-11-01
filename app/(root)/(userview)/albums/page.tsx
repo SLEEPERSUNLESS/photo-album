@@ -148,7 +148,7 @@ export default function Albums() {
         <button
           key={i}
           onClick={() => goToPage(i)}
-          className={`px-3 py-1 rounded cursor-pointer ${currentPage === i ? 'bg-slate-200 font-medium' : 'hover:bg-slate-100'}`}
+          className={`px-3 py-1 rounded ${currentPage === i ? 'bg-slate-200 font-medium' : 'hover:bg-slate-100'}`}
         >
           {i}
         </button>
@@ -161,7 +161,7 @@ export default function Albums() {
         <button
           onClick={goToPreviousPage}
           disabled={!previousPageUrl}
-          className={`p-2 rounded ${!previousPageUrl ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100 cursor-pointer'}`}
+          className={`p-2 rounded ${!previousPageUrl ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100'}`}
           aria-label="Previous page"
         >
           <FaAngleLeft />
@@ -170,7 +170,7 @@ export default function Albums() {
         <button
           onClick={goToNextPage}
           disabled={!nextPageUrl}
-          className={`p-2 rounded ${!nextPageUrl ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100 cursor-pointer'}`}
+          className={`p-2 rounded ${!nextPageUrl ? 'text-slate-300 cursor-not-allowed' : 'text-slate-600 hover:bg-slate-100'}`}
           aria-label="Next page"
         >
           <FaAngleRight />
@@ -226,7 +226,7 @@ export default function Albums() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
               {albums.map((album) => (
-                <Link key={album.id} href={`/albums/${album.slug}`} className="cursor-pointer transition-transform hover:scale-[1.01]">
+                <Link key={album.id} href={`/albums/${album.slug}`} className="transition-transform hover:scale-[1.01]">
                   <div className="bg-white rounded-lg shadow-sm overflow-hidden">
                     <div className="relative h-48 bg-slate-500 flex flex-col items-end">
                       <img src={album.thumbnail} className="w-full h-full object-cover" alt={album.title} />
