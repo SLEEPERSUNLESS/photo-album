@@ -163,24 +163,24 @@ export default function Dashboard() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse rounded-lg overflow-hidden shadow-sm table-fixed">
               <thead>
-                <tr className="bg-gradient-to-r from-slate-100 to-slate-200">
-                  <th className="p-6 font-semibold text-slate-700 w-1/4">Tytuł</th>
-                  <th className="p-6 font-semibold text-slate-700 w-1/3">Opis</th>
-                  <th className="p-6 font-semibold text-slate-700 text-center w-1/6">Miniaturka</th>
-                  <th className="p-6 font-semibold text-slate-700 w-64">Akcje</th>
+                <tr className="bg-gradient-to-r from-slate-300 to-slate-400">
+                  <th className="p-3 font-semibold text-slate-700 w-1/4">Tytuł</th>
+                  <th className="p-3 font-semibold text-slate-700 w-1/3">Opis</th>
+                  <th className="p-3 font-semibold text-slate-700 text-center w-1/6">Miniaturka</th>
+                  <th className="p-3 font-semibold text-slate-700 w-64">Akcje</th>
                 </tr>
               </thead>
               <tbody>
               {albums.map((a, index) => (
                 <tr key={a.slug} className={`hover:bg-slate-50 transition-colors ${index % 2 === 0 ? 'bg-white' : 'bg-slate-25'}`}>
                   <td className="p-6 align-top min-h-24">
-                    <label className="block text-sm font-medium text-slate-700 mb-2" htmlFor={`title-${a.slug}`}>Tytuł</label>
                     {editing[a.slug]?.title ? (
                       <div>
-                        <input
+                        <textarea
                           id={`title-${a.slug}`}
-                          className="w-full border border-slate-300 p-3 rounded-md focus:ring-2 focus:ring-slate-500 focus:border-slate-500 mb-2"
+                          className="w-full border border-slate-300 p-3 rounded-md focus:ring-2 focus:ring-slate-500 focus:border-slate-500 resize-none mb-2"
                           placeholder="Tytuł"
+                          rows={Math.max(1, Math.ceil(a.title.length / 40))}
                           defaultValue={a.title}
                           autoFocus
                         />
@@ -193,8 +193,8 @@ export default function Dashboard() {
                           </button>
                           <button
                             onClick={async () => {
-                              const input = document.getElementById(`title-${a.slug}`) as HTMLInputElement;
-                              const newTitle = input.value;
+                              const textarea = document.getElementById(`title-${a.slug}`) as HTMLTextAreaElement;
+                              const newTitle = textarea.value;
                               if (newTitle !== a.title) {
                                 try {
                                   const r = await apiFetch(`/albums/${a.slug}/meta/`, { method: 'PATCH', body: JSON.stringify({ title: newTitle }) });
@@ -214,7 +214,7 @@ export default function Dashboard() {
                       </div>
                     ) : (
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-900 font-medium">{a.title}</span>
+                        <span className="text-slate-900 font-medium bg-blue-100 px-2 py-1 rounded max-w-full break-words min-w-0">{a.title}</span>
                         <button
                           onClick={() => setEditing(prev => ({ ...prev, [a.slug]: { ...prev[a.slug], title: true } }))}
                           className="text-slate-400 hover:text-slate-600 ml-2"
@@ -226,14 +226,13 @@ export default function Dashboard() {
                     )}
                   </td>
                   <td className="p-6 align-top min-h-24">
-                    <label className="block text-sm font-medium text-slate-700 mb-2" htmlFor={`desc-${a.slug}`}>Opis</label>
                     {editing[a.slug]?.desc ? (
                       <div>
                         <textarea
                           id={`desc-${a.slug}`}
                           className="w-full border border-slate-300 p-3 rounded-md focus:ring-2 focus:ring-slate-500 focus:border-slate-500 resize-none mb-2"
                           placeholder="Opis"
-                          rows={1}
+                          rows={Math.max(1, Math.ceil((a.description || '').length / 40))}
                           defaultValue={a.description || ''}
                           autoFocus
                         />
@@ -266,8 +265,8 @@ export default function Dashboard() {
                         </div>
                       </div>
                     ) : (
-                      <div className="flex items-start justify-between">
-                        <span className="text-slate-700">{a.description || 'Brak opisu'}</span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-slate-700 bg-green-100 px-2 py-1 rounded max-w-full break-words min-w-0">{a.description || 'Brak opisu'}</span>
                         <button
                           onClick={() => setEditing(prev => ({ ...prev, [a.slug]: { ...prev[a.slug], desc: true } }))}
                           className="text-slate-400 hover:text-slate-600 ml-2 flex-shrink-0"
