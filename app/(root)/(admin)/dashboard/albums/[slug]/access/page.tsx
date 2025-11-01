@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { apiFetch } from "../../../../../../lib/api";
@@ -14,8 +14,35 @@ export default function AlbumAccessPage() {
   const justCreated = Boolean(searchParams.get('justCreated'));
   const [list, setList] = useState<AccessItem[]>([]);
   const [email, setEmail] = useState("");
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [message, setMessage] = useState<string| null>(null);
   const [loading, setLoading] = useState(true);
+
+  const fetchSuggestions = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setSuggestions([]);
+      return;
+    }
+    try {
+      const r = await apiFetch(`/emails/suggest/?q=${encodeURIComponent(query)}`);
+      if (r.ok) {
+        const data = await r.json();
+        setSuggestions(Array.isArray(data) ? data : []);
+      } else {
+        setSuggestions([]);
+      }
+    } catch (e) {
+      setSuggestions([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchSuggestions(email);
+    }, 0);
+    return () => clearTimeout(timeoutId);
+  }, [email, fetchSuggestions]);
 
   async function load() {
     setLoading(true);
@@ -43,6 +70,8 @@ export default function AlbumAccessPage() {
         throw new Error(d?.detail || 'Nie udało się dodać');
       }
       setEmail("");
+      setSuggestions([]);
+      setShowSuggestions(false);
       await load();
     } catch (err:any) {
       setMessage(err?.message || 'Błąd');
@@ -60,12 +89,46 @@ export default function AlbumAccessPage() {
     }
   }
 
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    setShowSuggestions(true);
+  };
+
+  const selectSuggestion = (suggestion: string) => {
+    setEmail(suggestion);
+    setShowSuggestions(false);
+    setSuggestions([]);
+  };
+
   return (
     <div className="max-w-3xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-4">Dostęp do albumu</h1>
       <div className="mb-4"><Link href="/dashboard?tab=albums" className="underline">← Wróć do listy</Link></div>
-      <form onSubmit={add} className="flex gap-2 mb-4">
-        <input type="email" value={email} onChange={(e)=>setEmail(e.target.value)} placeholder="user@example.com" className="flex-1 border p-2 rounded" />
+      <form onSubmit={add} className="flex gap-2 mb-4 relative">
+        <div className="flex-1 relative">
+          <input 
+            type="email" 
+            value={email} 
+            onChange={handleEmailChange} 
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+            placeholder="user@example.com" 
+            className="w-full border p-2 rounded" 
+          />
+          {showSuggestions && suggestions.length > 0 && (
+            <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-b shadow-lg max-h-40 overflow-y-auto">
+              {suggestions.map((suggestion, index) => (
+                <li 
+                  key={index} 
+                  onClick={() => selectSuggestion(suggestion)}
+                  className="p-2 hover:bg-gray-100 cursor-pointer"
+                >
+                  {suggestion}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
         <button className="px-4 py-2 bg-slate-700 text-white rounded">Dodaj</button>
       </form>
       {message && <p className="text-sm text-red-600 mb-2">{message}</p>}
