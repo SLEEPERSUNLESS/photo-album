@@ -299,13 +299,19 @@ export default function AlbumPhotosPage() {
                 </div>
               ))}
             </div>
-            <div className="flex justify-center">
-              <button 
-                disabled={uploading} 
-                onClick={upload} 
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            <div className="flex justify-end gap-4 pt-4">
+              <button
+                onClick={clearAllUploads}
+                className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
               >
-                {uploading ? 'Dodawanie zdjęć...' : `Dodaj ${uploadFiles.length} zdjęć`}
+                Anuluj
+              </button>
+              <button
+                disabled={uploading}
+                onClick={upload}
+                className="px-4 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed font-medium"
+              >
+                {uploading ? 'Dodawanie zdjęć...' : 'Dodaj zdjęcia'}
               </button>
             </div>
           </div>
