@@ -81,6 +81,28 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
+      <style>{`
+        .scroll-custom::-webkit-scrollbar {
+          width: 4px;
+        }
+        .scroll-custom::-webkit-scrollbar-thumb {
+          background: #94a3b8;
+          border-radius: 2px;
+        }
+        .scroll-custom::-webkit-scrollbar-track {
+          background: #f8fafc;
+        }
+        .scroll-custom {
+          scrollbar-width: thin;
+          scrollbar-color: #94a3b8 #f8fafc;
+        }
+        .h-134 {
+          height: 134px;
+        }
+        .max-h-134 {
+          max-height: 134px;
+        }
+      `}</style>
       <h1 className="text-2xl font-bold mb-4">Panel administratora</h1>
 
       <div className="mb-6 flex gap-2 border-b">
@@ -163,11 +185,11 @@ export default function Dashboard() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse rounded-lg overflow-hidden shadow-sm table-fixed">
               <thead>
-                <tr className="bg-gradient-to-r from-slate-300 to-slate-400">
-                  <th className="p-3 font-semibold text-slate-700 w-1/4">Tytuł</th>
-                  <th className="p-3 font-semibold text-slate-700 w-1/3">Opis</th>
-                  <th className="p-3 font-semibold text-slate-700 text-center w-1/6">Miniaturka</th>
-                  <th className="p-3 font-semibold text-slate-700 w-64">Akcje</th>
+                <tr className="bg-slate-700">
+                  <th className="p-6 font-semibold text-white w-1/3 align-top">Tytuł</th>
+                  <th className="p-6 font-semibold text-white w-2/5 align-top">Opis</th>
+                  <th className="p-6 font-semibold text-white text-center w-1/6 align-top">Miniaturka</th>
+                  <th className="p-6 font-semibold text-white w-48 align-top">Akcje</th>
                 </tr>
               </thead>
               <tbody>
@@ -214,7 +236,7 @@ export default function Dashboard() {
                       </div>
                     ) : (
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-900 font-medium bg-blue-100 px-2 py-1 rounded max-w-full break-words min-w-0">{a.title}</span>
+                        <span className="text-slate-900 font-medium bg-blue-100 px-2 py-1 rounded max-w-full break-words min-w-0 overflow-y-auto scroll-custom inline-block max-h-134">{a.title}</span>
                         <button
                           onClick={() => setEditing(prev => ({ ...prev, [a.slug]: { ...prev[a.slug], title: true } }))}
                           className="text-slate-400 hover:text-slate-600 ml-2"
@@ -266,7 +288,7 @@ export default function Dashboard() {
                       </div>
                     ) : (
                       <div className="flex items-center justify-between">
-                        <span className="text-slate-700 bg-green-100 px-2 py-1 rounded max-w-full break-words min-w-0">{a.description || 'Brak opisu'}</span>
+                        <span className="text-slate-700 bg-green-100 px-2 py-1 rounded max-w-full break-words min-w-0 overflow-y-auto scroll-custom inline-block max-h-134">{a.description || 'Brak opisu'}</span>
                         <button
                           onClick={() => setEditing(prev => ({ ...prev, [a.slug]: { ...prev[a.slug], desc: true } }))}
                           className="text-slate-400 hover:text-slate-600 ml-2 flex-shrink-0"
@@ -305,11 +327,11 @@ export default function Dashboard() {
                   </td>
                   <td className="p-6 align-top min-h-24">
                     <div className="flex flex-col gap-3">
-                      <Link href={`/dashboard/albums/${a.slug}/photos`} className="inline-flex items-center px-4 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors text-sm font-medium">
+                      <Link href={`/dashboard/albums/${a.slug}/photos`} className="inline-flex items-center px-3 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors text-sm font-medium">
                         <FaCamera className="mr-2" />
                         Zdjęcia
                       </Link>
-                      <Link href={`/dashboard/albums/${a.slug}/access`} className="inline-flex items-center px-4 py-2 bg-white rounded-md border border-slate-300 font-medium text-slate-600 hover:text-slate-900 transition-colors text-sm">
+                      <Link href={`/dashboard/albums/${a.slug}/access`} className="inline-flex items-center px-3 py-2 bg-white rounded-md border border-slate-300 font-medium text-slate-600 hover:text-slate-900 transition-colors text-sm">
                         <FaLock className="mr-2" />
                         Edytuj dostęp
                       </Link>
@@ -324,7 +346,7 @@ export default function Dashboard() {
                             setMessage(err?.message || 'Błąd');
                           }
                         }}
-                        className="inline-flex items-center px-4 py-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors text-sm font-medium"
+                        className="inline-flex items-center px-3 py-2 bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition-colors text-sm font-medium"
                       >
                         <FaTrash className="mr-2" />
                         Usuń
