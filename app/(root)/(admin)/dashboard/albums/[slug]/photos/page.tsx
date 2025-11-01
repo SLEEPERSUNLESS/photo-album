@@ -24,6 +24,7 @@ export default function AlbumPhotosPage() {
   const [uploadFiles, setUploadFiles] = useState<UploadFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [dragOver, setDragOver] = useState(false);
+  const [showAllUploads, setShowAllUploads] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function load() {
@@ -206,7 +207,7 @@ export default function AlbumPhotosPage() {
 
       <div className="mb-6">
         <div 
-          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+          className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors cursor-pointer ${
             dragOver 
               ? 'border-blue-500 bg-blue-50' 
               : 'border-gray-300 hover:border-gray-400'
@@ -250,16 +251,28 @@ export default function AlbumPhotosPage() {
         {uploadFiles.length > 0 && (
           <div className="mt-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium">Wybrane zdjęcia ({uploadFiles.length})</h3>
-              <button
-                onClick={clearAllUploads}
-                className="text-sm text-red-600 hover:text-red-800"
-              >
-                Wyczyść wszystkie
-              </button>
+              <h3 className="text-lg font-medium">
+                Wybrane zdjęcia ({showAllUploads ? uploadFiles.length : Math.min(20, uploadFiles.length)} z {uploadFiles.length})
+              </h3>
+              <div className="flex items-center gap-2">
+                {uploadFiles.length > 20 && (
+                  <button
+                    onClick={() => setShowAllUploads(!showAllUploads)}
+                    className="text-sm text-blue-600 hover:text-blue-800"
+                  >
+                    {showAllUploads ? 'Pokaż mniej' : `Pokaż wszystkie (${uploadFiles.length})`}
+                  </button>
+                )}
+                <button
+                  onClick={clearAllUploads}
+                  className="text-sm text-red-600 hover:text-red-800"
+                >
+                  Wyczyść wszystkie
+                </button>
+              </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-              {uploadFiles.map((uploadFile) => (
+              {(showAllUploads ? uploadFiles : uploadFiles.slice(0, 20)).map((uploadFile) => (
                 <div key={uploadFile.id} className="relative border rounded overflow-hidden">
                   <img 
                     src={uploadFile.preview} 

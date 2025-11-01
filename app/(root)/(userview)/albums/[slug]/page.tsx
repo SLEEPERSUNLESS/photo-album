@@ -22,7 +22,7 @@ interface AlbumData {
     photos: Photo[];
 }
 
-export default function AlbumDetail({ params }: { params: { slug: string } }) {
+export default function AlbumDetail({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = use(params);
     const [albumData, setAlbumData] = useState<AlbumData>({ photos: [] });
     const [selectedPhotos, setSelectedPhotos] = useState<number[]>([]);

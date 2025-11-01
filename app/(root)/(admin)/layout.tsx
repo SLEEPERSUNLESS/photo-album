@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Navbar from "@/components/Navbar";
 import { apiFetch } from "../../lib/api";
 
 export default function AdminLayout({
@@ -48,7 +47,6 @@ export default function AdminLayout({
 
   return (
     <div className="flex-1">
-      <Navbar />
       {children}
     </div>
   );

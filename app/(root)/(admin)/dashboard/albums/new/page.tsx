@@ -21,6 +21,7 @@ export default function NewAlbumPage() {
   const [creating, setCreating] = useState(false);
   const [thumbnailDragOver, setThumbnailDragOver] = useState(false);
   const [photosDragOver, setPhotosDragOver] = useState(false);
+  const [showAllPhotos, setShowAllPhotos] = useState(false);
   const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const photosInputRef = useRef<HTMLInputElement>(null);
 
@@ -229,7 +230,7 @@ export default function NewAlbumPage() {
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">Miniaturka albumu (opcjonalnie)</label>
           <div 
-            className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+            className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
               thumbnailDragOver 
                 ? 'border-blue-500 bg-blue-50' 
                 : thumbnail 
@@ -297,7 +298,7 @@ export default function NewAlbumPage() {
         <div>
           <label className="block text-sm font-medium text-slate-700 mb-2">Zdjęcia albumu (opcjonalnie)</label>
           <div 
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+            className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors cursor-pointer ${
               photosDragOver 
                 ? 'border-blue-500 bg-blue-50' 
                 : 'border-gray-300 hover:border-gray-400'
@@ -342,17 +343,30 @@ export default function NewAlbumPage() {
           {photos.length > 0 && (
             <div className="mt-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium">Wybrane zdjęcia ({photos.length})</h3>
-                <button
-                  type="button"
-                  onClick={() => setPhotos([])}
-                  className="text-sm text-red-600 hover:text-red-800"
-                >
-                  Wyczyść wszystkie
-                </button>
+                <h3 className="text-lg font-medium">
+                  Pokazuję {showAllPhotos ? photos.length : Math.min(20, photos.length)} ({photos.length})
+                </h3>
+                <div className="flex items-center gap-2">
+                  {photos.length > 20 && (
+                    <button
+                      type="button"
+                      onClick={() => setShowAllPhotos(!showAllPhotos)}
+                      className="text-sm text-blue-600 hover:text-blue-800"
+                    >
+                      {showAllPhotos ? 'Pokaż mniej' : `Pokaż wszystkie (${photos.length})`}
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setPhotos([])}
+                    className="text-sm text-red-600 hover:text-red-800"
+                  >
+                    Wyczyść wszystkie
+                  </button>
+                </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {photos.map((photo) => (
+                {(showAllPhotos ? photos : photos.slice(0, 20)).map((photo) => (
                   <div key={photo.id} className="relative border rounded overflow-hidden">
                     <img 
                       src={photo.preview} 
