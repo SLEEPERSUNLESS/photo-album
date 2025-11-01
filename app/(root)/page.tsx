@@ -55,7 +55,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <div className="w-1/2 h-full flex flex-col justify-center items-center">
+        <div className="w-1/2 h-full flex flex-col justify-center items-center relative">
           <div className="w-3/5 h-2/3 flex flex-col justify-center items-center">
             <p className="text-slate-700 font-bold text-2xl text-center">Jeszcze jeden krok</p>
             <p className="text-slate-600 text-sm text-center mb-6">Wybierz dowolną opcję logowania i przeglądaj swoje zdjęcia</p>
@@ -196,11 +196,11 @@ export default function Home() {
               )}
             </div>
           </div>
+          <div className="helpButton absolute bottom-4 left-1/2 transform -translate-x-1/2 text-center whitespace-nowrap">
+            <span className="text-slate-400 text-sm">Potrzebujesz pomocy? Chciałbyś poprosić o dostęp?</span>
+            <button className="ml-2 text-slate-700 underline text-sm">Kontakt</button>
+          </div>
         </div>
-      </div>
-      <div className="helpButton flex flex-row items-center justify-center mt-4">
-        <span className="text-slate-400 text-sm">Potrzebujesz pomocy? Chciałbyś poprosić o dostęp?</span>
-        <button className="ml-2 text-slate-700 underline text-sm">Kontakt</button>
       </div>
     </div>
   );
