@@ -77,7 +77,6 @@ export default function Dashboard() {
     }
   }
 
-  // Album access management moved to per-album page
 
   return (
     <div className="max-w-7xl mx-auto p-6">
@@ -168,10 +167,6 @@ export default function Dashboard() {
           )}
         </section>
       )}
-
-      {/* create tab removed; creation now lives at /dashboard/albums/new */}
-
-      {/* Access tab removed; use per-album "Edytuj dostęp" button in Albums tab */}
 
       {tab === 'albums' && (
         <section className="mb-8 bg-white rounded-lg shadow-sm p-6">

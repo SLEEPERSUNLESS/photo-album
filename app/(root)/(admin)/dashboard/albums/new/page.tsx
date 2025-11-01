@@ -344,7 +344,7 @@ export default function NewAlbumPage() {
             <div className="mt-4">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-medium">
-                  Pokazuję {showAllPhotos ? photos.length : Math.min(20, photos.length)} ({photos.length})
+                  Pokazuje {showAllPhotos ? photos.length : Math.min(20, photos.length)} ({photos.length})
                 </h3>
                 <div className="flex items-center gap-2">
                   {photos.length > 20 && (

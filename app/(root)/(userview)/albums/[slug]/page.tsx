@@ -7,7 +7,7 @@ import { apiFetch } from '../../../../lib/api';
 import { useCart } from '../../../../lib/CartProvider';
 import { FaArrowLeft, FaShare, FaDownload, FaShoppingCart, FaArrowRight } from "react-icons/fa";
 import { IoIosCheckmarkCircle } from "react-icons/io";
-import { FaFilter, FaList } from "react-icons/fa6";
+import { FaList } from "react-icons/fa6";
 import { HiMiniSquares2X2 } from "react-icons/hi2";
 
 interface Photo {
@@ -80,7 +80,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
         if (!enlargedPhoto || albumData.photos.length === 0) return;
         const idx = albumData.photos.findIndex(p => p.id === enlargedPhoto.id);
         if (idx === -1) return;
-        const nextIdx = (idx + 1) % albumData.photos.length; // loop to first
+        const nextIdx = (idx + 1) % albumData.photos.length;
         setEnlargedPhoto(albumData.photos[nextIdx]);
     };
 
@@ -88,7 +88,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
         if (!enlargedPhoto || albumData.photos.length === 0) return;
         const idx = albumData.photos.findIndex(p => p.id === enlargedPhoto.id);
         if (idx === -1) return;
-        const prevIdx = (idx - 1 + albumData.photos.length) % albumData.photos.length; // loop to last
+        const prevIdx = (idx - 1 + albumData.photos.length) % albumData.photos.length;
         setEnlargedPhoto(albumData.photos[prevIdx]);
     };
 
@@ -138,7 +138,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
     };
 
     if (loading) {
-        return <div className="flex justify-center items-center h-screen">Loading album...</div>;
+        return <div className="flex justify-center items-center h-screen">Wczytuję album...</div>;
     }
 
     if (error) {
@@ -158,6 +158,10 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                         <div className="flex items-center h-8 px-4 bg-slate-200 rounded-2xl text-slate-700">
                             <IoIosCheckmarkCircle className="mr-2" />
                             <span>Zaznaczone: {selectedPhotos.length}</span>
+                        </div>
+                        <div className="flex items-center h-8 px-4 bg-slate-200 rounded-2xl text-slate-700">
+                            <FaShoppingCart className="mr-2" />
+                            <span>Koszyk: {getTotalItems()} zdjęć</span>
                         </div>
                         <button
                             onClick={handleAddToCart}
@@ -182,10 +186,6 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                                     ? 'Odznacz wszystkie' 
                                     : 'Zaznacz wszystkie'}
                             </span>
-                        </button>
-                        <button className="flex items-center px-4 py-2 bg-white rounded-md border border-slate-300 font-medium text-slate-600 hover:text-slate-900">
-                            <FaFilter className="mr-2" />
-                            <span>Filtruj</span>
                         </button>
                     </div>
                     <div className="flex flex-row items-center gap-2">
@@ -238,27 +238,12 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                     ))}
                 </div>
             </div>
-            <div className="sticky w-full h-16 bottom-0 left-0 right-0 bg-white border-t border-slate-200">
-                <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-row justify-between items-center">
-                    <div className="checkoutWrapperLeft flex flex-row items-center gap-4">
-                        <span className="text-slate-500">Zaznaczone: {selectedPhotos.length}</span>
-                        <span className="text-slate-500">Koszyk: {getTotalItems()} zdjęć</span>
-                    </div>
-                    <div className="checkoutWrapperRight">
-                        <Link href="/cart" className="px-4 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-800 disabled:bg-slate-400">
-                            <FaShoppingCart className="mr-2 inline" />
-                            Przejdź do koszyka ({getTotalItems()})
-                        </Link>
-                    </div>
-                </div>
-            </div>
 
             {enlargedPhoto && (
                 <div
                     className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60]"
                     onClick={handleCloseEnlarged}
                 >
-                    {/* Navigation arrows anchored to viewport */}
                     <button
                         onClick={(e) => { e.stopPropagation(); handlePrev(); }}
                         className="absolute left-3 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full w-12 h-12 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-white/50 z-[70]"
@@ -275,7 +260,6 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                         <FaArrowRight />
                     </button>
 
-                    {/* Image wrapper sized to the rendered image so the close button sits on the photo */}
                     <div className="relative" onClick={(e) => e.stopPropagation()}>
                         <img
                             src={enlargedPhoto.url}

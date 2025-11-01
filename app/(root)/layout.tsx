@@ -29,17 +29,23 @@ export default function Layout({
   return (
     <AuthProvider>
       <CartProvider>
-        <div className="min-h-screen">
-          <div className="fixed top-0 left-0 right-0 z-50">
-            <Navbar albumTitle={albumTitle} />
-          </div>
-          <div className="pt-16 pb-12">
+        {pathname === "/" ? (
+          <div className="min-h-screen">
             {children}
           </div>
-          <div className="fixed bottom-0 left-0 right-0 z-50">
-            <Footer />
+        ) : (
+          <div className="min-h-screen">
+            <div className="fixed top-0 left-0 right-0 z-50">
+              <Navbar albumTitle={albumTitle} />
+            </div>
+            <div className="pt-16 pb-12">
+              {children}
+            </div>
+            <div className="fixed bottom-0 left-0 right-0 z-50">
+              <Footer />
+            </div>
           </div>
-        </div>
+        )}
       </CartProvider>
     </AuthProvider>
   );
