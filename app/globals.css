@@ -15,6 +15,10 @@ body {
   color: var(--foreground);
 }
 
+button {
+  cursor: pointer;
+}
+
 .text-cream {
   color: #FBF5DD;
 }
