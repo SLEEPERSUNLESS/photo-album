@@ -1,6 +1,6 @@
 "use client";
 
-export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://131.163.97.69/";
 
 export function getToken() {
   if (typeof window === "undefined") return null;
