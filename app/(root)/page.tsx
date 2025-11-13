@@ -57,7 +57,7 @@ export default function Home() {
         </div>
         <div className="w-1/2 h-full flex flex-col justify-center items-center relative">
           <div className="w-3/5 h-2/3 flex flex-col justify-center items-center">
-            <p className="text-slate-700 font-bold text-2xl text-center">Jeszcze jeden krok</p>
+            <p className="text-slate-700 font-bold text-2xl text-center">Jeszcze jeden krok!</p>
             <p className="text-slate-600 text-sm text-center mb-6">Wybierz dowolną opcję logowania i przeglądaj swoje zdjęcia</p>
             <div className="EmailWrapper flex flex-col w-full items-center">
               <p className="text-slate-700 text-sm w-full mb-1">Wpisz adres e-mail</p>
