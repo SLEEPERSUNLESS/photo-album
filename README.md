@@ -1,5 +1,3 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
-
 [![CI-CD](https://github.com/Calling-All-Crows/photo-album/actions/workflows/main_push.yml/badge.svg)](https://github.com/Calling-All-Crows/photo-album/actions/workflows/main_push.yml)
 
 ## Getting Started
