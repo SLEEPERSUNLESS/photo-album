@@ -13,6 +13,7 @@ export default function Dashboard() {
   const [tab, setTab] = useState<'accounts'|'albums'>('albums');
   const [list, setList] = useState<AllowedEntry[]>([]);
   const [allowEmail, setAllowEmail] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [albums, setAlbums] = useState<any[]>([]);
@@ -53,13 +54,14 @@ export default function Dashboard() {
     try {
       const r = await apiFetch("/api/auth/admin/allowed_emails/", {
         method: "POST",
-        body: JSON.stringify({ email: allowEmail }),
+        body: JSON.stringify({ email: allowEmail, is_admin: isAdmin }),
       });
       if (!r.ok) {
         const d = await r.json().catch(() => ({}));
         throw new Error(d?.detail || "Błąd dodawania");
       }
       setAllowEmail("");
+      setIsAdmin(false);
       await load();
     } catch (err: any) {
       setMessage(err?.message || "Błąd");
@@ -120,6 +122,14 @@ export default function Dashboard() {
               placeholder="user@example.com"
               className="flex-1 border p-2 rounded"
             />
+            <label className="flex items-center gap-1">
+              <input
+                type="checkbox"
+                checked={isAdmin}
+                onChange={(e) => setIsAdmin(e.target.checked)}
+              />
+              Admin
+            </label>
             <button className="px-4 py-2 bg-slate-700 text-white rounded">Dodaj</button>
           </form>
           {message && <p className="text-sm text-red-600 mb-2">{message}</p>}
@@ -131,7 +141,6 @@ export default function Dashboard() {
                 <tr className="bg-slate-50">
                   <th className="p-2 border">E-mail</th>
                   <th className="p-2 border">Typ</th>
-                  <th className="p-2 border">Aktywny</th>
                   <th className="p-2 border w-24">Akcje</th>
                 </tr>
               </thead>
@@ -140,24 +149,19 @@ export default function Dashboard() {
                   <tr key={String(it.id)}>
                     <td className="p-2 border">{it.email}</td>
                     <td className="p-2 border">{it.is_admin ? "admin" : "użytkownik"}</td>
-                    <td className="p-2 border">{it.is_admin ? "tak" : (it.is_active ? "tak" : "nie")}</td>
                     <td className="p-2 border">
-                      {!it.is_admin ? (
-                        <button
-                          onClick={() => remove(it.id)}
-                          className="text-sm text-red-600 hover:underline"
-                        >
-                          Usuń
-                        </button>
-                      ) : (
-                        <span className="text-xs text-slate-400">—</span>
-                      )}
+                      <button
+                        onClick={() => remove(it.id)}
+                        className="text-sm text-red-600 hover:underline"
+                      >
+                        Usuń
+                      </button>
                     </td>
                   </tr>
                 ))}
                 {list.length === 0 && (
                   <tr>
-                    <td className="p-2 border text-slate-500" colSpan={4}>
+                    <td className="p-2 border text-slate-500" colSpan={3}>
                       Brak pozycji
                     </td>
                   </tr>
