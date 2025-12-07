@@ -16,7 +16,7 @@ export default function AdminLayout({
     let mounted = true;
     (async () => {
       try {
-        const r = await apiFetch("/api/auth/me/");
+        const r = await apiFetch("auth/me/");
         const me = await r.json();
         if (mounted && me?.is_staff) setAllowed(true);
         else if (mounted) {

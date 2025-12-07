@@ -78,7 +78,7 @@ export default function Home() {
                       }
                       (async () => {
                         try {
-                          const r = await apiFetch('/api/auth/request_code/', ({
+                          const r = await apiFetch('auth/request_code/', ({
                             method: 'POST',
                             body: JSON.stringify({ email }),
                             skipAuth: true,
@@ -109,7 +109,7 @@ export default function Home() {
                       return;
                     }
                     try {
-                      const r = await apiFetch('/api/auth/request_code/', ({
+                      const r = await apiFetch('auth/request_code/', ({
                         method: 'POST',
                         body: JSON.stringify({ email }),
                         skipAuth: true,
@@ -143,7 +143,7 @@ export default function Home() {
                           (async () => {
                             const em = localStorage.getItem('auth_email') || email;
                             try {
-                              const r = await apiFetch('/api/auth/verify_code/', ({
+                              const r = await apiFetch('auth/verify_code/', ({
                                 method: 'POST',
                                 body: JSON.stringify({ email: em, code }),
                                 skipAuth: true,
@@ -170,7 +170,7 @@ export default function Home() {
                       onClick={async () => {
                         const e = localStorage.getItem('auth_email') || email;
                         try {
-                          const r = await apiFetch('/api/auth/verify_code/', ({
+                          const r = await apiFetch('auth/verify_code/', ({
                             method: 'POST',
                             body: JSON.stringify({ email: e, code }),
                             skipAuth: true,

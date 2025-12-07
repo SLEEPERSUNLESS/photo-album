@@ -41,7 +41,7 @@ export default function Navbar({ albumTitle }: Props) {
           if (mounted) setIsAdmin(false);
           return;
         }
-        const r = await apiFetch('/api/auth/me/');
+        const r = await apiFetch('auth/me/');
         const me = await r.json();
         if (mounted) setIsAdmin(!!me?.is_staff);
       } catch (e) {
