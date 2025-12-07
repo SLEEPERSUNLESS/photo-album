@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { useCart, CartItem } from '../../../lib/CartProvider';
 import { FaTrash, FaArrowLeft, FaShoppingCart } from "react-icons/fa";
+import { createPayment } from '../../../lib/api';
 
 export default function CartPage() {
   const { items, removeItem, clearCart, getTotalItems, getTotalPrice } = useCart();
@@ -15,6 +16,19 @@ export default function CartPage() {
   const handleClearCart = () => {
     if (confirm('Czy na pewno chcesz opróżnić koszyk?')) {
       clearCart();
+    }
+  };
+
+  const handlePayment = async () => {
+    if (items.length === 0) return;
+    
+    try {
+      const photoIds = items.map(item => item.id);
+      const paymentData = await createPayment(photoIds);
+      window.location.href = paymentData.redirect_url;
+    } catch (error) {
+      alert('Błąd podczas tworzenia płatności');
+      console.error(error);
     }
   };
 
@@ -119,7 +133,7 @@ export default function CartPage() {
             >
               Kontynuuj zakupy
             </Link>
-            <button className="px-6 py-3 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors">
+            <button className="px-6 py-3 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors" onClick={handlePayment}>
               Przejdź do płatności
             </button>
           </div>

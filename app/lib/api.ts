@@ -1,6 +1,6 @@
 "use client";
 
-export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://131.163.97.69/";
+export const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "http://20.251.168.46/";
 
 export async function apiFetch(path: string, options: RequestInit = {}) {
   const fullUrl = path.startsWith('http') ? path : `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
@@ -33,4 +33,17 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
   }
 
   return resp;
+}
+
+export async function createPayment(photoIds: number[]) {
+  const resp = await apiFetch('/payment/create/', {
+    method: 'POST',
+    body: JSON.stringify({ photo_ids: photoIds }),
+  });
+
+  if (!resp.ok) {
+    throw new Error('Failed to create payment');
+  }
+
+  return resp.json();
 }
