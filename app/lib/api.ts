@@ -47,3 +47,15 @@ export async function createPayment(photoIds: number[]) {
 
   return resp.json();
 }
+
+export async function healthCheck() {
+  const resp = await apiFetch('/api/auth/health/', {
+    method: 'GET',
+  });
+
+  if (!resp.ok) {
+    throw new Error('Health check failed');
+  }
+
+  return resp.json();
+}
