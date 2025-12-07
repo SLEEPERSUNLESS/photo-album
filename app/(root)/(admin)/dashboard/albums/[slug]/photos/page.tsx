@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { apiFetch } from "../../../../../../lib/api";
 
-interface PhotoItem { id: number; title: string; url: string }
+interface PhotoItem { id: number; title: string; url: string; price: number }
 
 interface UploadFile {
   file: File;
@@ -332,7 +332,10 @@ export default function AlbumPhotosPage() {
               <div key={p.id} className="border rounded overflow-hidden">
                 <img src={p.url} alt={p.title} className="w-full h-40 object-cover" />
                 <div className="p-2 flex items-center justify-between text-sm">
-                  <span className="truncate" title={p.title}>{p.title}</span>
+                  <div>
+                    <span className="truncate block" title={p.title}>{p.title}</span>
+                    <span className="text-green-600">{p.price} zł</span>
+                  </div>
                   <button onClick={()=>remove(p.id)} className="text-red-600 hover:underline">Usuń</button>
                 </div>
               </div>

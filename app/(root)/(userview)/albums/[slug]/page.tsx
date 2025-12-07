@@ -15,6 +15,7 @@ interface Photo {
     title: string;
     url: string;
     album: number;
+    price: number;
 }
 
 interface AlbumData {
@@ -123,6 +124,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                     url: photo.url,
                     album: photo.album,
                     albumTitle: albumData.title,
+                    price: parseFloat(photo.price) || 0,
                 });
             }
         });
@@ -266,6 +268,9 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                             alt={enlargedPhoto.title || "Powiększone zdjęcie"}
                             className="block max-w-[90vw] max-h-[80vh] object-contain select-none"
                         />
+                        <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1 rounded">
+                            {enlargedPhoto.title || "Bez tytułu"} - {enlargedPhoto.price} zł
+                        </div>
                         <button
                             onClick={handleCloseEnlarged}
                             className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl leading-none z-[70]"

@@ -60,7 +60,11 @@ export function CartProvider({ children }: CartProviderProps) {
     const savedCart = localStorage.getItem(cartKey);
     if (savedCart) {
       try {
-        const parsedCart = JSON.parse(savedCart);
+        let parsedCart = JSON.parse(savedCart);
+        parsedCart = parsedCart.map((item: CartItem) => ({
+          ...item,
+          price: parseFloat(item.price as any) || 0,
+        }));
         setItems(parsedCart);
       } catch (error) {
         console.error('Failed to parse saved cart:', error);
@@ -87,7 +91,11 @@ export function CartProvider({ children }: CartProviderProps) {
         const savedCart = localStorage.getItem(newCartKey);
         if (savedCart) {
           try {
-            const parsedCart = JSON.parse(savedCart);
+            let parsedCart = JSON.parse(savedCart);
+            parsedCart = parsedCart.map((item: CartItem) => ({
+              ...item,
+              price: parseFloat(item.price as any) || 0,
+            }));
             setItems(parsedCart);
           } catch (error) {
             console.error('Failed to parse saved cart on auth change:', error);
@@ -137,7 +145,7 @@ export function CartProvider({ children }: CartProviderProps) {
   };
 
   const getTotalPrice = () => {
-    return 0;
+    return items.reduce((total, item) => total + (parseFloat(item.price as any) || 0), 0);
   };
 
   const value: CartContextType = {
