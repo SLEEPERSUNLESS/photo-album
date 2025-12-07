@@ -49,7 +49,7 @@ export async function createPayment(photoIds: number[]) {
 }
 
 export async function healthCheck() {
-  const resp = await apiFetch('/api/auth/health/', {
+  const resp = await apiFetch('/api/authtest/health/', {
     method: 'GET',
   });
 
