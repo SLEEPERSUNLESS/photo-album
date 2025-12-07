@@ -124,7 +124,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                     url: photo.url,
                     album: photo.album,
                     albumTitle: albumData.title,
-                    price: parseFloat(photo.price) || 0,
+                    price: photo.price,
                 });
             }
         });
