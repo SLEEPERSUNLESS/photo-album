@@ -22,7 +22,7 @@ export default function Dashboard() {
   async function load() {
     setLoading(true);
     try {
-  const r = await apiFetch("auth/admin/allowed_emails/");
+  const r = await apiFetch("/api/auth/admin/allowed_emails/");
   const data = await r.json();
   setList(Array.isArray(data) ? data : []);
       // also load albums for admin to manage access
@@ -52,7 +52,7 @@ export default function Dashboard() {
     if (!allowEmail || !allowEmail.includes("@")) return;
     setMessage(null);
     try {
-      const r = await apiFetch("auth/admin/allowed_emails/", {
+      const r = await apiFetch("/api/auth/admin/allowed_emails/", {
         method: "POST",
         body: JSON.stringify({ email: allowEmail, is_admin: isAdmin }),
       });
@@ -71,7 +71,7 @@ export default function Dashboard() {
   async function remove(id: string | number) {
     setMessage(null);
     try {
-      const r = await apiFetch(`auth/admin/allowed_emails/${id}/`, { method: "DELETE" });
+      const r = await apiFetch(`/api/auth/admin/allowed_emails/${id}/`, { method: "DELETE" });
       if (!r.ok && r.status !== 204) throw new Error("Nie udało się usunąć");
       await load();
     } catch (err: any) {

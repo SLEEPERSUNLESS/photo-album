@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { apiFetch, healthCheck } from "../lib/api";
+import { apiFetch } from "../lib/api";
 import { setToken, setTokens } from "../lib/auth";
 import { FaFacebook, FaGoogle, FaInstagram } from "react-icons/fa";
 import { IoIosCheckmarkCircle } from "react-icons/io";
@@ -15,7 +15,6 @@ export default function Home() {
   const [code, setCode] = useState("");
   const [emailError, setEmailError] = useState("");
   const [codeError, setCodeError] = useState("");
-  const [healthInfo, setHealthInfo] = useState<string | null>(null);
   const codeInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -78,7 +77,7 @@ export default function Home() {
                       }
                       (async () => {
                         try {
-                          const r = await apiFetch('auth/request_code/', ({
+                          const r = await apiFetch('/api/auth/request_code/', ({
                             method: 'POST',
                             body: JSON.stringify({ email }),
                             skipAuth: true,
@@ -109,7 +108,7 @@ export default function Home() {
                       return;
                     }
                     try {
-                      const r = await apiFetch('auth/request_code/', ({
+                      const r = await apiFetch('/api/auth/request_code/', ({
                         method: 'POST',
                         body: JSON.stringify({ email }),
                         skipAuth: true,
@@ -143,7 +142,7 @@ export default function Home() {
                           (async () => {
                             const em = localStorage.getItem('auth_email') || email;
                             try {
-                              const r = await apiFetch('auth/verify_code/', ({
+                              const r = await apiFetch('/api/auth/verify_code/', ({
                                 method: 'POST',
                                 body: JSON.stringify({ email: em, code }),
                                 skipAuth: true,
@@ -170,7 +169,7 @@ export default function Home() {
                       onClick={async () => {
                         const e = localStorage.getItem('auth_email') || email;
                         try {
-                          const r = await apiFetch('auth/verify_code/', ({
+                          const r = await apiFetch('/api/auth/verify_code/', ({
                             method: 'POST',
                             body: JSON.stringify({ email: e, code }),
                             skipAuth: true,
@@ -196,22 +195,6 @@ export default function Home() {
                 </div>
               )}
             </div>
-          </div>
-          <div className="absolute bottom-16 left-4">
-            <button
-              onClick={async () => {
-                try {
-                  const data = await healthCheck();
-                  setHealthInfo(`Status: ${data.status}, Server: ${data.server}, Timestamp: ${data.timestamp}`);
-                } catch (err) {
-                  setHealthInfo('Błąd podczas sprawdzania statusu serwera');
-                }
-              }}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md text-sm"
-            >
-              Sprawdź status serwera
-            </button>
-            {healthInfo && <p className="text-slate-600 text-sm mt-2">{healthInfo}</p>}
           </div>
           <div className="helpButton absolute bottom-4 left-1/2 transform -translate-x-1/2 text-center whitespace-nowrap">
             <span className="text-slate-400 text-sm">Potrzebujesz pomocy? Chciałbyś poprosić o dostęp?</span>

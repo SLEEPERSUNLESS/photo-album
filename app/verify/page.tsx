@@ -18,7 +18,7 @@ export default function VerifyPage() {
   async function verify(e: React.FormEvent) {
     e.preventDefault();
     try {
-  const r = await apiFetch('auth/verify_code/', ({ method: 'POST', body: JSON.stringify({ email, code }), skipAuth: true } as any));
+  const r = await apiFetch('/api/auth/verify_code/', ({ method: 'POST', body: JSON.stringify({ email, code }), skipAuth: true } as any));
       const data = await r.json();
       if (r.ok && data.access) {
         // store access and refresh if provided
