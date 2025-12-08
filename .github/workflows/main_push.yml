@@ -34,5 +34,8 @@ jobs:
 
             # Restart app with pm2
             pm2 restart ${{ secrets.SSH_PROJECTNAME }}
+
+            # Logs
+            pm2 logs
           '"
   
