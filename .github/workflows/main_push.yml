@@ -36,6 +36,6 @@ jobs:
             pm2 restart ${{ secrets.SSH_PROJECTNAME }}
 
             # Logs
-            pm2 logs
+            pm2 logs ${{ secrets.SSH_PROJECTNAME }} --nostream
           '"
   
