@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import { apiFetch } from "../../../../../../lib/api";
 import { FaArrowLeft, FaTrash, FaPlus } from "react-icons/fa";
 
-interface PhotoItem { id: number; title: string; url: string; price: number }
+interface PhotoItem { id: number; title: string; url: string; price: number; uuid: string }
 
 export default function AlbumPhotosPage() {
   const { slug } = useParams() as { slug: string };
@@ -101,10 +101,10 @@ export default function AlbumPhotosPage() {
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {photos.map(p => (
-                <div key={p.id} className="group relative aspect-square bg-slate-100 rounded-xl overflow-hidden">
+                <div key={p.uuid} className="group relative aspect-square bg-slate-100 rounded-xl overflow-hidden">
                   <img src={p.url} alt={p.title} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors" />
-                  <button onClick={() => apiFetch(`/api/albums/${slug}/photos/${p.id}/`, { method: 'DELETE' }).then(load)} className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600">
+                  <button onClick={() => apiFetch(`/api/albums/${slug}/photos/${p.uuid}/`, { method: 'DELETE' }).then(load)} className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600">
                     <FaTrash size={12} />
                   </button>
                   <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">

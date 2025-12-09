@@ -11,6 +11,7 @@ export default function PaymentSuccessPage() {
         <FaCheckCircle className="mx-auto text-6xl text-green-500 mb-4" />
         <h1 className="text-3xl font-bold text-slate-700 mb-2">Płatność zakończona sukcesem!</h1>
         <p className="text-slate-500 mb-6">Dziękujemy za zakup zdjęć. Twoje zamówienie zostało zrealizowane.</p>
+        <p className="text-slate-500 mb-6">Link do pobrania zdjęć zostanie wysłany na Twój adres e-mail, gdy płatność zostanie przetworzona.</p>
         <Link
           href="/albums"
           className="inline-flex items-center px-6 py-3 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors"
