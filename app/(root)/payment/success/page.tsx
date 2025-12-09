@@ -126,25 +126,24 @@ function PaymentSuccessContent() {
         <h1 className="text-3xl font-bold text-slate-700 mb-2">Płatność zakończona sukcesem!</h1>
         <p className="text-slate-500 mb-6">Dziękujemy za zakup zdjęć. Możesz teraz pobrać swoje zdjęcia.</p>
         
-        <button
-          onClick={handleDownload}
-          disabled={downloading}
-          className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors mb-4 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {downloading ? (
-            <>
-              <FaSpinner className="mr-2 animate-spin" />
-              Pobieranie...
-            </>
-          ) : (
-            <>
-              <FaDownload className="mr-2" />
-              Pobierz zdjęcia (ZIP)
-            </>
-          )}
-        </button>
-        
-        <div className="mt-4">
+        <div className="flex gap-4">
+          <button
+            onClick={handleDownload}
+            disabled={downloading}
+            className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {downloading ? (
+              <>
+                <FaSpinner className="mr-2 animate-spin" />
+                Pobieranie...
+              </>
+            ) : (
+              <>
+                <FaDownload className="mr-2" />
+                Pobierz zdjęcia (ZIP)
+              </>
+            )}
+          </button>
           <Link
             href="/albums"
             className="inline-flex items-center px-6 py-3 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors"

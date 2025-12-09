@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from "react";
 import { apiFetch, API_BASE } from "../../../lib/api";
 import { toast } from "sonner";
-import { FaDownload, FaSpinner } from "react-icons/fa";
+import { FaDownload, FaSpinner, FaBox, FaArrowLeft } from "react-icons/fa";
+import Link from "next/link";
 
 type Order = {
   id: number;
@@ -69,73 +70,94 @@ export default function OrdersPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-slate-50">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-slate-700"></div>
       </div>
     );
   }
 
+  if (orders.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
+        <div className="text-center">
+          <FaBox className="mx-auto text-6xl text-slate-300 mb-4" />
+          <h1 className="text-2xl font-bold text-slate-700 mb-2">Brak zamówień</h1>
+          <p className="text-slate-500 mb-6">Nie masz jeszcze żadnych zamówień. Przejdź do albumów, aby rozpocząć zakupy.</p>
+          <Link
+            href="/albums"
+            className="inline-flex items-center px-6 py-3 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors"
+          >
+            <FaArrowLeft className="mr-2" />
+            Przejdź do albumów
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6 max-w-5xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Zamówienia</h1>
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Użytkownik</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kwota</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Utworzone</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Zapłacone</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Zdjęcia</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Akcje</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {orders.map((order) => (
-              <tr key={order.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.id}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.user_email}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.total_amount} PLN</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <span className={`px-2 py-1 rounded-full text-xs ${
-                    order.status === 'paid' ? 'bg-green-100 text-green-800' :
-                    order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                    order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {order.status === 'paid' ? 'Opłacone' :
-                     order.status === 'pending' ? 'Oczekujące' :
-                     order.status === 'cancelled' ? 'Anulowane' :
-                     order.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(order.created_at).toLocaleDateString()}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.paid_at ? new Date(order.paid_at).toLocaleDateString() : '-'}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.photos.length}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {order.status === 'paid' && (
-                    <button
-                      onClick={() => handleDownload(order.id)}
-                      disabled={downloadingId === order.id}
-                      className="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs"
-                    >
-                      {downloadingId === order.id ? (
-                        <FaSpinner className="animate-spin" />
-                      ) : (
-                        <>
-                          <FaDownload className="mr-1" />
-                          Pobierz
-                        </>
-                      )}
-                    </button>
-                  )}
-                </td>
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <h1 className="text-3xl font-bold text-slate-900 mb-8">Zamówienia</h1>
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <table className="min-w-full divide-y divide-slate-200">
+            <thead className="bg-slate-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Użytkownik</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Kwota</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Utworzone</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Zapłacone</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Zdjęcia</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Akcje</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="bg-white divide-y divide-slate-200">
+              {orders.map((order) => (
+                <tr key={order.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{order.id}</td>
+                  <td className="px-6 py-4 text-sm text-slate-600 max-w-[200px] truncate" title={order.user_email}>{order.user_email}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{order.total_amount} PLN</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                      order.status === 'paid' ? 'bg-green-100 text-green-800' :
+                      order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                      order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
+                      'bg-slate-100 text-slate-800'
+                    }`}>
+                      {order.status === 'paid' ? 'Opłacone' :
+                       order.status === 'pending' ? 'Oczekujące' :
+                       order.status === 'cancelled' ? 'Anulowane' :
+                       order.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{new Date(order.created_at).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{order.paid_at ? new Date(order.paid_at).toLocaleDateString() : '-'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{order.photos.length}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    {order.status === 'paid' && (
+                      <button
+                        onClick={() => handleDownload(order.id)}
+                        disabled={downloadingId === order.id}
+                        className="inline-flex items-center px-3 py-1.5 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium"
+                      >
+                        {downloadingId === order.id ? (
+                          <FaSpinner className="animate-spin" />
+                        ) : (
+                          <>
+                            <FaDownload className="mr-1.5" />
+                            Pobierz
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
