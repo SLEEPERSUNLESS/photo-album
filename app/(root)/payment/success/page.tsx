@@ -5,10 +5,12 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FaCheckCircle, FaArrowLeft, FaDownload, FaSpinner, FaExclamationTriangle } from "react-icons/fa";
 import { apiFetch, API_BASE } from "../../../lib/api";
+import { useCart } from "../../../lib/CartProvider";
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order_id");
+  const { clearCart } = useCart();
   
   const [status, setStatus] = useState<"loading" | "paid" | "pending" | "error">("loading");
   const [downloading, setDownloading] = useState(false);
@@ -29,6 +31,7 @@ function PaymentSuccessContent() {
         const data = await resp.json();
         if (data.new_status === "paid" || data.payu_status === "COMPLETED") {
           setStatus("paid");
+          clearCart();
         } else if (data.new_status === "pending" || data.payu_status === "PENDING") {
           setStatus("pending");
           // Retry after 3 seconds

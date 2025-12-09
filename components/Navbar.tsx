@@ -8,7 +8,6 @@ import { FaUser, FaShoppingCart } from 'react-icons/fa';
 import { IoMdMenu, IoMdClose } from 'react-icons/io';
 import { apiFetch } from '@/app/lib/api';
 import { useCart } from '@/app/lib/CartProvider';
-import TokenTimer from './TokenTimer';
 import { useAuth } from '@/app/lib/AuthProvider';
 
 type Props = {
@@ -77,7 +76,6 @@ export default function Navbar({ albumTitle }: Props) {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            <TokenTimer />
             {isAdmin && (
               <>
                 <Link
@@ -157,9 +155,6 @@ export default function Navbar({ albumTitle }: Props) {
       {isMenuOpen && (
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white">
-            <div className="px-3 py-2">
-              <TokenTimer />
-            </div>
             {isAdmin && (
               <Link
                 href="/dashboard"
