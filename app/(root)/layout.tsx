@@ -2,6 +2,7 @@
 
 import { AuthProvider } from '../lib/AuthProvider';
 import { CartProvider } from '../lib/CartProvider';
+import { Toaster } from '../../components/ui/sonner';
 import Footer from '../../components/Footer';
 import Navbar from '../../components/Navbar';
 import { usePathname } from 'next/navigation';
@@ -44,6 +45,7 @@ export default function Layout({
             <Footer />
           </div>
         )}
+        <Toaster />
       </CartProvider>
     </AuthProvider>
   );

@@ -36,7 +36,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
         const fetchAlbumPhotos = async () => {
             try {
                 setLoading(true);
-                const response = await apiFetch(`/albums/${slug}/`);
+                const response = await apiFetch(`/api/albums/${slug}/`);
                 if (!response.ok) {
                     throw new Error(`Failed to fetch album with slug "${slug}"`);
                 }
@@ -77,20 +77,34 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
         };
     }, [enlargedPhoto, albumData.photos]);
 
+    useEffect(() => {
+        if (!enlargedPhoto) return;
+        document.body.style.overflow = 'hidden';
+
+        let canScroll = true;
+        const handleWheel = (e: WheelEvent) => {
+            e.preventDefault();
+            if (!canScroll) return;
+            canScroll = false;
+            e.deltaY > 0 ? handleNext() : handlePrev();
+            setTimeout(() => canScroll = true, 300);
+        };
+
+        window.addEventListener('wheel', handleWheel, { passive: false });
+        return () => {
+            document.body.style.overflow = '';
+            window.removeEventListener('wheel', handleWheel);
+        };
+    }, [enlargedPhoto, albumData.photos]);
+
     const handleNext = () => {
-        if (!enlargedPhoto || albumData.photos.length === 0) return;
-        const idx = albumData.photos.findIndex(p => p.id === enlargedPhoto.id);
-        if (idx === -1) return;
-        const nextIdx = (idx + 1) % albumData.photos.length;
-        setEnlargedPhoto(albumData.photos[nextIdx]);
+        const idx = albumData.photos.findIndex(p => p.id === enlargedPhoto?.id);
+        if (idx < albumData.photos.length - 1) setEnlargedPhoto(albumData.photos[idx + 1]);
     };
 
     const handlePrev = () => {
-        if (!enlargedPhoto || albumData.photos.length === 0) return;
-        const idx = albumData.photos.findIndex(p => p.id === enlargedPhoto.id);
-        if (idx === -1) return;
-        const prevIdx = (idx - 1 + albumData.photos.length) % albumData.photos.length;
-        setEnlargedPhoto(albumData.photos[prevIdx]);
+        const idx = albumData.photos.findIndex(p => p.id === enlargedPhoto?.id);
+        if (idx > 0) setEnlargedPhoto(albumData.photos[idx - 1]);
     };
 
     const handlePhotoSelect = (photoId: number) => {

@@ -41,7 +41,7 @@ export default function Albums() {
       if (!isSearchUpdate) {
         setLoading(true);
       }
-  let url = `/albums/?page=${page}`;
+  let url = `/api/albums/?page=${page}`;
       if (search) {
         url += `&search=${encodeURIComponent(search)}`;
       }

@@ -183,7 +183,7 @@ export default function NewAlbumPage() {
       if (thumbnail) form.append('thumbnail', thumbnail.file);
       photos.forEach((photo) => form.append('photos', photo.file));
       
-      const r = await apiFetch('/albums/', { method: 'POST', body: form });
+      const r = await apiFetch('/api/albums/', { method: 'POST', body: form });
       if (!r.ok) {
         const d = await r.json().catch(() => ({}));
         throw new Error(d?.detail || 'Błąd tworzenia albumu');

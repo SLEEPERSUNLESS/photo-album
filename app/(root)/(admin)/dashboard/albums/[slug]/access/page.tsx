@@ -4,166 +4,102 @@ import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 import { apiFetch } from "../../../../../../lib/api";
+import { FaArrowLeft, FaTrash } from "react-icons/fa";
 
 interface AccessItem { id: number; email: string }
 
 export default function AlbumAccessPage() {
-  const params = useParams();
+  const { slug } = useParams() as { slug: string };
   const searchParams = useSearchParams();
-  const slug = (params?.slug as string) || "";
   const justCreated = Boolean(searchParams.get('justCreated'));
   const [list, setList] = useState<AccessItem[]>([]);
   const [email, setEmail] = useState("");
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [message, setMessage] = useState<string| null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchSuggestions = useCallback(async (query: string) => {
-    if (!query.trim()) {
-      setSuggestions([]);
-      return;
-    }
-    try {
-      const r = await apiFetch(`/emails/suggest/?q=${encodeURIComponent(query)}`);
-      if (r.ok) {
-        const data = await r.json();
-        setSuggestions(Array.isArray(data) ? data : []);
-      } else {
-        setSuggestions([]);
-      }
-    } catch (e) {
-      setSuggestions([]);
-    }
+  const fetchSuggestions = useCallback(async (q: string) => {
+    if (!q.trim()) { setSuggestions([]); return; }
+    const r = await apiFetch(`/api/emails/suggest/?q=${encodeURIComponent(q)}`);
+    if (r.ok) setSuggestions(await r.json());
   }, []);
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchSuggestions(email);
-    }, 0);
-    return () => clearTimeout(timeoutId);
-  }, [email, fetchSuggestions]);
+  useEffect(() => { fetchSuggestions(email); }, [email, fetchSuggestions]);
 
   async function load() {
     setLoading(true);
-    try {
-      const r = await apiFetch(`/albums/${slug}/access/`);
-      const data = await r.json();
-      setList(Array.isArray(data) ? data : []);
-    } catch (e) {
-      setMessage("Nie udało się pobrać dostępu");
-    } finally {
-      setLoading(false);
-    }
+    const r = await apiFetch(`/api/albums/${slug}/access/`);
+    setList(await r.json());
+    setLoading(false);
   }
 
   useEffect(() => { if (slug) load(); }, [slug]);
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
-    setMessage(null);
-    if (!email || !email.includes("@")) return;
-    try {
-      const r = await apiFetch(`/albums/${slug}/access/`, { method: 'POST', body: JSON.stringify({ email }) });
-      if (!r.ok) {
-        const d = await r.json().catch(()=>({}));
-        throw new Error(d?.detail || 'Nie udało się dodać');
-      }
-      setEmail("");
-      setSuggestions([]);
-      setShowSuggestions(false);
-      await load();
-    } catch (err:any) {
-      setMessage(err?.message || 'Błąd');
-    }
+    if (!email.includes("@")) return;
+    const r = await apiFetch(`/api/albums/${slug}/access/`, { method: 'POST', body: JSON.stringify({ email }) });
+    if (r.ok) { setEmail(""); setSuggestions([]); load(); }
+    else setMessage("Błąd dodawania");
   }
-
-  async function remove(id: number) {
-    setMessage(null);
-    try {
-      const r = await apiFetch(`/albums/${slug}/access/${id}/`, { method: 'DELETE' });
-      if (!r.ok && r.status !== 204) throw new Error('Nie udało się usunąć');
-      await load();
-    } catch (err:any) {
-      setMessage(err?.message || 'Błąd');
-    }
-  }
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-    setShowSuggestions(true);
-  };
-
-  const selectSuggestion = (suggestion: string) => {
-    setEmail(suggestion);
-    setShowSuggestions(false);
-    setSuggestions([]);
-  };
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Dostęp do albumu</h1>
-      <div className="mb-4"><Link href="/dashboard?tab=albums" className="underline">← Wróć do listy</Link></div>
-      <form onSubmit={add} className="flex gap-2 mb-4 relative">
-        <div className="flex-1 relative">
-          <input 
-            type="email" 
-            value={email} 
-            onChange={handleEmailChange} 
-            onFocus={() => setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-            placeholder="user@example.com" 
-            className="w-full border p-2 rounded" 
-          />
-          {showSuggestions && suggestions.length > 0 && (
-            <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-b shadow-lg max-h-40 overflow-y-auto">
-              {suggestions.map((suggestion, index) => (
-                <li 
-                  key={index} 
-                  onClick={() => selectSuggestion(suggestion)}
-                  className="p-2 hover:bg-gray-100 cursor-pointer"
-                >
-                  {suggestion}
-                </li>
+    <div className="bg-slate-50 min-h-screen">
+      <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Link href="/dashboard?tab=albums" className="inline-flex items-center text-slate-600 hover:text-slate-900 mb-6">
+          <FaArrowLeft className="mr-2" /> Wróć do albumów
+        </Link>
+
+        <h1 className="text-3xl font-bold text-slate-700 mb-8">Dostęp do albumu</h1>
+
+        {message && <p className="text-sm text-red-600 mb-4 bg-red-50 p-4 rounded-xl">{message}</p>}
+
+        <div className="bg-white rounded-xl shadow-sm">
+          <form onSubmit={add} className="p-5 border-b border-slate-100 flex gap-3 relative">
+            <div className="flex-1 relative">
+              <input
+                type="email"
+                value={email}
+                onChange={e => { setEmail(e.target.value); setShowSuggestions(true); }}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                placeholder="email@example.com"
+                className="w-full border border-slate-200 px-4 py-2 rounded-lg"
+              />
+              {showSuggestions && suggestions.length > 0 && (
+                <ul className="absolute z-10 w-full bg-white border border-slate-200 rounded-lg shadow-lg mt-1 overflow-hidden">
+                  {suggestions.map((s, i) => (
+                    <li key={i} onClick={() => { setEmail(s); setShowSuggestions(false); }} className="px-4 py-2 hover:bg-slate-50 cursor-pointer">{s}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <button className="px-5 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800">Dodaj</button>
+          </form>
+
+          <div className="p-5 border-b border-slate-100 text-slate-500">{list.length} osób z dostępem</div>
+
+          {loading ? <p className="p-5 text-slate-500">Ładowanie...</p> : list.length === 0 ? <p className="p-5 text-slate-500">Nikt nie ma dostępu</p> : (
+            <div className="divide-y divide-slate-100">
+              {list.map(it => (
+                <div key={it.id} className="flex items-center justify-between px-5 py-4">
+                  <span className="text-slate-700">{it.email}</span>
+                  <button onClick={() => apiFetch(`/api/albums/${slug}/access/${it.id}/`, { method: 'DELETE' }).then(load)} className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg">
+                    <FaTrash />
+                  </button>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
-        <button className="px-4 py-2 bg-slate-700 text-white rounded">Dodaj</button>
-      </form>
-      {message && <p className="text-sm text-red-600 mb-2">{message}</p>}
-      {loading ? (
-        <div>Ładowanie...</div>
-      ) : (
-        <table className="w-full text-left border">
-          <thead>
-            <tr className="bg-slate-50">
-              <th className="p-2 border">E-mail</th>
-              <th className="p-2 border w-24">Akcje</th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.map(it => (
-              <tr key={it.id}>
-                <td className="p-2 border">{it.email}</td>
-                <td className="p-2 border">
-                  <button onClick={()=>remove(it.id)} className="text-sm text-red-600 hover:underline">Usuń</button>
-                </td>
-              </tr>
-            ))}
-            {list.length === 0 && (
-              <tr>
-                <td className="p-2 border text-slate-500" colSpan={2}>Brak wpisów</td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      )}
-      {justCreated && (
-        <div className="mt-4 flex justify-end">
-          <Link href="/dashboard?tab=albums" className="px-4 py-2 bg-slate-700 text-white rounded inline-block">Pomiń dodawanie dostępu</Link>
-        </div>
-      )}
+
+        {justCreated && (
+          <div className="mt-6 flex justify-end">
+            <Link href="/dashboard?tab=albums" className="px-5 py-2 bg-slate-700 text-white rounded-lg hover:bg-slate-800">Pomiń i wróć</Link>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

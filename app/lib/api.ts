@@ -1,6 +1,6 @@
 "use client";
 
-export const API_BASE = "http://20.251.168.46";
+export const API_BASE = "http://localhost:8000";
 
 export async function apiFetch(path: string, options: RequestInit = {}) {
   const fullUrl = path.startsWith('http') ? path : `${API_BASE}${path.startsWith('/') ? '' : '/'}${path}`;
@@ -36,7 +36,7 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
 }
 
 export async function createPayment(photoIds: number[]) {
-  const resp = await apiFetch('/payment/create/', {
+  const resp = await apiFetch('/api/payment/create/', {
     method: 'POST',
     body: JSON.stringify({ photo_ids: photoIds }),
   });
