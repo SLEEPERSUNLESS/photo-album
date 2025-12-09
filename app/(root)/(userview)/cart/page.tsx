@@ -6,6 +6,13 @@ import { useCart, CartItem } from '../../../lib/CartProvider';
 import { FaTrash, FaArrowLeft, FaShoppingCart, FaChevronDown, FaChevronUp, FaExpand, FaArrowRight } from "react-icons/fa";
 import { createPayment } from '../../../lib/api';
 
+function getPhotoUrl(url: string): string {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access') : null;
+    if (!token || !url) return url;
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}token=${token}`;
+}
+
 interface AlbumGroup {
   albumId: number;
   albumTitle: string;
@@ -203,7 +210,7 @@ export default function CartPage() {
                       <div key={item.id} className="relative">
                         <div className="group aspect-square bg-slate-200 rounded-md overflow-hidden relative">
                           <img
-                            src={item.url}
+                            src={getPhotoUrl(item.url)}
                             alt={item.title}
                             className="w-full h-full object-cover"
                           />
@@ -271,7 +278,7 @@ export default function CartPage() {
 
             <div className="relative" onClick={(e) => e.stopPropagation()}>
               <img
-                src={enlargedPhoto.url}
+                src={getPhotoUrl(enlargedPhoto.url)}
                 alt={enlargedPhoto.title || "Powiększone zdjęcie"}
                 className="block max-w-[90vw] max-h-[80vh] object-contain select-none"
               />

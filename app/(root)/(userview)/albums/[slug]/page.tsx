@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { use } from 'react';
 import { apiFetch } from '../../../../lib/api';
 import { useCart } from '../../../../lib/CartProvider';
@@ -9,6 +9,13 @@ import { IoIosCheckmarkCircle } from "react-icons/io";
 import { FaList } from "react-icons/fa6";
 import { HiMiniSquares2X2 } from "react-icons/hi2";
 import { toast } from "sonner";
+
+function getPhotoUrl(url: string): string {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access') : null;
+    if (!token || !url) return url;
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}token=${token}`;
+}
 
 interface Photo {
     id: number;
@@ -241,7 +248,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                                 aria-label={`Powiększ zdjęcie ${photo.title || 'bez tytułu'}`}
                                 title="Powiększ zdjęcie"
                             />
-                            <img src={photo.url} alt={photo.title || "Album photo"} className="w-full h-full object-cover z-0" />
+                            <img src={getPhotoUrl(photo.url)} alt={photo.title || "Album photo"} className="w-full h-full object-cover z-0" />
                         </div>
                     ))}
                 </div>
@@ -270,7 +277,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
 
                     <div className="relative" onClick={(e) => e.stopPropagation()}>
                         <img
-                            src={enlargedPhoto.url}
+                            src={getPhotoUrl(enlargedPhoto.url)}
                             alt={enlargedPhoto.title || "Powiększone zdjęcie"}
                             className="block max-w-[90vw] max-h-[80vh] object-contain select-none"
                         />
