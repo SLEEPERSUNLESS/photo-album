@@ -23,6 +23,8 @@ export const metadata: Metadata = {
   description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.",
 };
 
+import ServerStatus from "@/components/ServerStatus";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -32,6 +34,7 @@ export default function RootLayout({
     <html lang="en" className={`${geistMono.variable} ${geistSans.variable} ${inter.variable} antialiased`}>
       <body>
         {children}
+        <ServerStatus />
       </body>
     </html>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { apiFetch, healthCheck } from "../lib/api";
+import { apiFetch } from "../lib/api";
 import { setToken, setTokens } from "../lib/auth";
 import { FaFacebook, FaGoogle, FaInstagram } from "react-icons/fa";
 import { IoIosCheckmarkCircle } from "react-icons/io";
@@ -15,7 +15,6 @@ export default function Home() {
   const [code, setCode] = useState("");
   const [emailError, setEmailError] = useState("");
   const [codeError, setCodeError] = useState("");
-  const [healthInfo, setHealthInfo] = useState<string | null>(null);
   const codeInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -25,8 +24,8 @@ export default function Home() {
   }, [codeSent]);
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-slate-50">
-      <div className="flex flex-row items-center w-2/3 h-3/4 bg-white">
-        <div className="bg-slate-700 w-1/2 h-full">
+      <div className="flex flex-row items-stretch w-full min-h-full md:w-2/3 md:h-3/4 md:min-h-0 bg-white">
+        <div className="hidden md:block bg-slate-700 w-1/2">
           <div className="flex flex-col justify-between p-10 text-slate-50 h-full">
             <div className="flex flex-col items-center justify-center">
               <h1 className="flex flex-row items-center gap-2 text-2xl font w-1/1">
@@ -46,18 +45,29 @@ export default function Home() {
                 <div className="flex flex-row w-full items-center gap-4">
                   <IoIosCheckmarkCircle className="text-xl" /><span className="font-bold ">Udostępnij album najbliższym</span>
                 </div>
+
               </div>
+
             </div>
-            <div className="bg-slate-700 w-1/2 h-full flex flex-col justify-end items-center">
-              <div className="flex flex-row w-full items-start gap-4">
-                <FaFacebook className="text-slate-400 text-2xl" />
-                <FaInstagram className="text-slate-400 text-2xl" />
-              </div>
+            <div className="flex flex-row items-start gap-4">
+              <FaFacebook className="text-slate-400 text-2xl" />
+              <FaInstagram className="text-slate-400 text-2xl" />
             </div>
           </div>
         </div>
-        <div className="w-1/2 h-full flex flex-col justify-center items-center relative">
-          <div className="w-3/5 h-2/3 flex flex-col justify-center items-center">
+        <div className="w-full md:w-1/2 flex flex-col justify-between items-center py-8">
+          {/* Mobile header */}
+          <div className="md:hidden w-full bg-slate-700 text-white px-6 py-4 -mt-8 mb-6 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <SiPhotopea className="text-xl" />
+              <span className="font-semibold">Nazwa firmy</span>
+            </div>
+            <div className="flex gap-3">
+              <FaFacebook className="text-slate-300 text-lg" />
+              <FaInstagram className="text-slate-300 text-lg" />
+            </div>
+          </div>
+          <div className="flex-1 w-4/5 md:w-3/5 flex flex-col justify-center items-center">
             <p className="text-slate-700 font-bold text-2xl text-center">Jeszcze jeden krok!</p>
             <p className="text-slate-600 text-sm text-center mb-6">Wybierz dowolną opcję logowania i przeglądaj swoje zdjęcia</p>
             <div className="EmailWrapper flex flex-col w-full items-center">
@@ -133,7 +143,7 @@ export default function Home() {
               ) : (
                 <div className="w-full mt-2">
                   <label className="block text-slate-700 text-sm mb-1">Wpisz kod z e-maila</label>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-nowrap">
                     <input
                       value={code}
                       onChange={(e) => { setCode(e.target.value); setCodeError(""); }}
@@ -163,7 +173,7 @@ export default function Home() {
                         }
                       }}
                       ref={codeInputRef}
-                      className={`flex-1 h-10 rounded-md border-2 ${codeError ? 'border-red-500 focus:ring-red-400 focus:border-red-500' : 'border-slate-300 focus:ring-slate-400 focus:border-slate-500'} p-2 focus:ring-1 focus:outline-none`}
+                      className={`flex-1 min-w-0 h-10 rounded-md border-2 ${codeError ? 'border-red-500 focus:ring-red-400 focus:border-red-500' : 'border-slate-300 focus:ring-slate-400 focus:border-slate-500'} p-2 focus:ring-1 focus:outline-none`}
                       placeholder="123456"
                     />
                     <button
@@ -187,7 +197,7 @@ export default function Home() {
                           setCodeError('Weryfikacja nie powiodła się');
                         }
                       }}
-                      className="h-10 px-4 rounded-md bg-slate-700 text-white"
+                      className="h-10 px-4 rounded-md bg-slate-700 text-white shrink-0"
                     >
                       Potwierdź
                     </button>
@@ -197,23 +207,7 @@ export default function Home() {
               )}
             </div>
           </div>
-            <div className="absolute bottom-16 left-4">
-            <button
-              onClick={async () => {
-                try {
-                  const data = await healthCheck();
-                  setHealthInfo(`Status: ${data.status}`);
-                } catch (err) {
-                  setHealthInfo('Błąd podczas sprawdzania statusu serwera');
-                }
-              }}
-              className="px-4 py-2 bg-gray-500 text-white rounded-md text-sm"
-            >
-              Sprawdź status serwera
-            </button>
-            {healthInfo && <p className="text-slate-600 text-sm mt-2">{healthInfo}</p>}
-          </div>
-          <div className="helpButton absolute bottom-4 left-1/2 transform -translate-x-1/2 text-center whitespace-nowrap">
+          <div className="helpButton text-center px-4">
             <span className="text-slate-400 text-sm">Potrzebujesz pomocy? Chciałbyś poprosić o dostęp?</span>
             <button className="ml-2 text-slate-700 underline text-sm">Kontakt</button>
           </div>
@@ -222,3 +216,5 @@ export default function Home() {
     </div>
   );
 }
+
+

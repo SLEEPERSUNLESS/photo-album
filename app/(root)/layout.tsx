@@ -34,16 +34,14 @@ export default function Layout({
             {children}
           </div>
         ) : (
-          <div className="min-h-screen">
+          <div className="min-h-screen flex flex-col">
             <div className="fixed top-0 left-0 right-0 z-50">
               <Navbar albumTitle={albumTitle} />
             </div>
-            <div className="pt-16 pb-12">
+            <div className="pt-16 flex-grow flex flex-col">
               {children}
             </div>
-            <div className="fixed bottom-0 left-0 right-0 z-50">
-              <Footer />
-            </div>
+            <Footer />
           </div>
         )}
       </CartProvider>
