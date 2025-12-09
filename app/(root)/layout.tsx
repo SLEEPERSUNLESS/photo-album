@@ -36,7 +36,7 @@ export default function Layout({
           </div>
         ) : (
           <div className="min-h-screen flex flex-col">
-            <div className="fixed top-0 left-0 right-0 z-50">
+            <div className="fixed top-0 left-0 z-50" style={{ right: 'var(--scrollbar-width, 0px)' }}>
               <Navbar albumTitle={albumTitle} />
             </div>
             <div className="pt-16 flex-grow flex flex-col">

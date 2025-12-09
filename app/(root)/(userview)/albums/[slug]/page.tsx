@@ -2,13 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { use } from 'react';
-import Link from "next/link";
 import { apiFetch } from '../../../../lib/api';
 import { useCart } from '../../../../lib/CartProvider';
 import { FaArrowLeft, FaShare, FaDownload, FaShoppingCart, FaArrowRight } from "react-icons/fa";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { FaList } from "react-icons/fa6";
 import { HiMiniSquares2X2 } from "react-icons/hi2";
+import { toast } from "sonner";
 
 interface Photo {
     id: number;
@@ -31,6 +31,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [enlargedPhoto, setEnlargedPhoto] = useState<Photo | null>(null);
+    const [justAdded, setJustAdded] = useState(false);
     const { addItem, isInCart, getTotalItems } = useCart();
 
     useEffect(() => {
@@ -83,6 +84,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
         const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
         document.body.style.overflow = 'hidden';
         document.body.style.paddingRight = `${scrollbarWidth}px`;
+        document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
 
         let canScroll = true;
         const handleWheel = (e: WheelEvent) => {
@@ -97,6 +99,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
         return () => {
             document.body.style.overflow = '';
             document.body.style.paddingRight = '';
+            document.documentElement.style.setProperty('--scrollbar-width', '0px');
             window.removeEventListener('wheel', handleWheel);
         };
     }, [enlargedPhoto, albumData.photos]);
@@ -133,6 +136,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
     };
 
     const handleAddToCart = () => {
+        let addedCount = 0;
         selectedPhotos.forEach(photoUuid => {
             const photo = albumData.photos.find(p => p.uuid === photoUuid);
             if (photo && !isInCart(photo.id)) {
@@ -144,9 +148,19 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                     albumTitle: albumData.title,
                     price: photo.price,
                 });
+                addedCount++;
             }
         });
-        setSelectedPhotos([]);
+        if (addedCount > 0) {
+            toast.success(`Dodano ${addedCount} zdjęć do koszyka`);
+            setJustAdded(true);
+        } else {
+            toast.info('Wybrane zdjęcia są już w koszyku');
+        }
+        setTimeout(() => {
+            setSelectedPhotos([]);
+            setJustAdded(false);
+        }, 800);
     };
 
     const handlePhotoEnlarge = (photo: Photo) => {
@@ -166,35 +180,9 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
     }
 
     return (
-        <div className="flex flex-col items-center bg-slate-50 border-t border-slate-200 flex-grow">
+        <div className="flex flex-col items-center bg-slate-50 border-t border-slate-200 flex-grow pb-20">
             <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="flex justify-between items-center mb-8">
-                    <Link href="/albums" className="flex items-center text-slate-600 hover:text-slate-900">
-                        <FaArrowLeft className="mr-2" />
-                        <span>Powrót do albumów</span>
-                    </Link>
-
-                    <div className="flex items-center gap-4">
-                        <div className="flex items-center h-8 px-4 bg-slate-200 rounded-2xl text-slate-700">
-                            <IoIosCheckmarkCircle className="mr-2" />
-                            <span>Zaznaczone: {selectedPhotos.length}</span>
-                        </div>
-                        <div className="flex items-center h-8 px-4 bg-slate-200 rounded-2xl text-slate-700">
-                            <FaShoppingCart className="mr-2" />
-                            <span>Koszyk: {getTotalItems()} zdjęć</span>
-                        </div>
-                        <button
-                            onClick={handleAddToCart}
-                            disabled={selectedPhotos.length === 0}
-                            className="flex items-center px-4 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-800 disabled:bg-slate-400"
-                        >
-                            <FaShoppingCart className="mr-2" />
-                            <span>Dodaj do koszyka</span>
-                        </button>
-                    </div>
-                </div>
-
-                <div className="mb-8 flex flex-row gap-2 justify-between">
+                <div className="mb-6 flex flex-row gap-2 justify-between items-center">
                     <div className="flex flex-row gap-2">
                         <button 
                             onClick={handleSelectAll}
@@ -209,7 +197,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                         </button>
                     </div>
                     <div className="flex flex-row items-center gap-2">
-                        <span>Widok: </span>
+                        <span className="text-slate-600">Widok: </span>
                         <button
                             className="flex items-center p-2 bg-slate-200 rounded-md border-none font-medium"
                             aria-label="Widok siatki"
@@ -299,6 +287,29 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                     </div>
                 </div>
             )}
+
+            <div className={`fixed bottom-0 left-0 bg-white border-t border-slate-200 shadow-lg transform transition-transform duration-300 z-40 ${selectedPhotos.length > 0 ? 'translate-y-0' : 'translate-y-full'}`} style={{ right: 'var(--scrollbar-width, 0px)' }}>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2 text-slate-700">
+                            <IoIosCheckmarkCircle className="text-slate-500" />
+                            <span>Zaznaczone: <strong>{selectedPhotos.length}</strong></span>
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-700">
+                            <FaShoppingCart className="text-slate-500" />
+                            <span>Koszyk: <strong>{getTotalItems()}</strong> zdjęć</span>
+                        </div>
+                    </div>
+                    <button
+                        onClick={handleAddToCart}
+                        disabled={justAdded}
+                        className={`flex items-center justify-center w-48 whitespace-nowrap px-5 py-2 rounded-md border transition-all duration-300 ${justAdded ? 'bg-green-100 text-green-800 border-green-200' : 'bg-slate-700 text-white border-transparent hover:bg-slate-800'}`}
+                    >
+                        <FaShoppingCart className="mr-2" />
+                        <span>{justAdded ? 'Dodano!' : 'Dodaj do koszyka'}</span>
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }
