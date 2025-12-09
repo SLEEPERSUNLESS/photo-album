@@ -7,6 +7,13 @@ import { apiFetch } from "../../../../../../lib/api";
 import { FaArrowLeft, FaTrash, FaPlus } from "react-icons/fa";
 import LazyImage from "../../../../../../../components/LazyImage";
 
+function getPhotoUrl(url: string): string {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access') : null;
+    if (!token || !url) return url;
+    const separator = url.includes('?') ? '&' : '?';
+    return `${url}${separator}token=${token}`;
+}
+
 interface PhotoItem { id: number; title: string; url: string; price: number; uuid: string }
 
 export default function AlbumPhotosPage() {
@@ -122,7 +129,7 @@ export default function AlbumPhotosPage() {
                 {(showAll ? photos : photos.slice(0, 20)).map((p, index) => (
                   <div key={p.uuid} className="group relative aspect-square bg-slate-100 rounded-xl overflow-hidden">
                     <LazyImage 
-                      src={p.url} 
+                      src={getPhotoUrl(p.url)} 
                       alt={p.title} 
                       className="w-full h-full object-cover"
                       index={index}
