@@ -54,7 +54,7 @@ export default function Navbar({ albumTitle }: Props) {
   }, [isAuth, pathname]);
 
   return (
-    <nav className="bg-white shadow-md w-full">
+    <nav className="bg-white border-b border-slate-200 w-full">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
