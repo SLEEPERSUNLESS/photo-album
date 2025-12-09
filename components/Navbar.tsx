@@ -9,7 +9,7 @@ import { IoMdMenu, IoMdClose } from 'react-icons/io';
 import { apiFetch } from '@/app/lib/api';
 import { useCart } from '@/app/lib/CartProvider';
 import TokenTimer from './TokenTimer';
-import { isAuthenticated } from '@/app/lib/auth';
+import { useAuth } from '@/app/lib/AuthProvider';
 
 type Props = {
   albumTitle?: string;
@@ -20,7 +20,7 @@ export default function Navbar({ albumTitle }: Props) {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const pathname = usePathname();
   const { getTotalItems } = useCart();
-  const auth = isAuthenticated();
+  const { isAuth, isLoading } = useAuth();
   
   const linkBase = "px-3 py-2 rounded-md text-sm font-medium";
   const linkInactive = "text-slate-600 hover:text-slate-900";
@@ -37,7 +37,7 @@ export default function Navbar({ albumTitle }: Props) {
     let mounted = true;
     (async () => {
       try {
-        if (!auth) {
+        if (!isAuth) {
           if (mounted) setIsAdmin(false);
           return;
         }
@@ -51,7 +51,7 @@ export default function Navbar({ albumTitle }: Props) {
     return () => {
       mounted = false;
     };
-  }, [auth, pathname]);
+  }, [isAuth, pathname]);
 
   return (
     <nav className="bg-white shadow-md w-full">
@@ -115,7 +115,11 @@ export default function Navbar({ albumTitle }: Props) {
                 Admin
               </span>
             )}
-            {auth ? (
+            {isLoading ? (
+              <div className={`${linkBase} ${linkInactive}`}>
+                ...
+              </div>
+            ) : isAuth ? (
               <Link
                 href="/logout"
                 className={`${linkBase} ${pathname.startsWith('/logout') ? linkActive : linkInactive}`}
@@ -191,7 +195,11 @@ export default function Navbar({ albumTitle }: Props) {
                 Admin
               </div>
             )}
-            {auth ? (
+            {isLoading ? (
+              <div className={`${mobileLinkBase} ${linkInactive}`}>
+                ...
+              </div>
+            ) : isAuth ? (
               <Link
                 href="/logout"
                 className={`${mobileLinkBase} ${pathname.startsWith('/logout') ? linkActive : linkInactive}`}
