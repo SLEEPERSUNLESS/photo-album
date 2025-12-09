@@ -45,7 +45,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Zamówienia</h1>
       <div className="bg-white shadow-md rounded-lg overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">

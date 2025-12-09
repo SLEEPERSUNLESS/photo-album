@@ -12,6 +12,7 @@ import { toast } from "sonner";
 
 interface Photo {
     id: number;
+    uuid: string;
     title: string;
     url: string;
     album: number;
@@ -26,7 +27,7 @@ interface AlbumData {
 export default function AlbumDetail({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = use(params);
     const [albumData, setAlbumData] = useState<AlbumData>({ photos: [] });
-    const [selectedPhotos, setSelectedPhotos] = useState<number[]>([]);
+    const [selectedPhotos, setSelectedPhotos] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [enlargedPhoto, setEnlargedPhoto] = useState<Photo | null>(null);
@@ -104,40 +105,40 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
     }, [enlargedPhoto, albumData.photos]);
 
     const handleNext = () => {
-        const idx = albumData.photos.findIndex(p => p.id === enlargedPhoto?.id);
+        const idx = albumData.photos.findIndex(p => p.uuid === enlargedPhoto?.uuid);
         if (idx < albumData.photos.length - 1) setEnlargedPhoto(albumData.photos[idx + 1]);
     };
 
     const handlePrev = () => {
-        const idx = albumData.photos.findIndex(p => p.id === enlargedPhoto?.id);
+        const idx = albumData.photos.findIndex(p => p.uuid === enlargedPhoto?.uuid);
         if (idx > 0) setEnlargedPhoto(albumData.photos[idx - 1]);
     };
 
-    const handlePhotoSelect = (photoId: number) => {
+    const handlePhotoSelect = (photoUuid: string) => {
         setSelectedPhotos(prev => {
-            if (prev.includes(photoId)) {
-                return prev.filter(id => id !== photoId);
+            if (prev.includes(photoUuid)) {
+                return prev.filter(uuid => uuid !== photoUuid);
             } else {
-                return [...prev, photoId];
+                return [...prev, photoUuid];
             }
         });
     };
 
     const handleSelectAll = () => {
-        const allPhotoIds = albumData.photos.map(photo => photo.id);
-        const allSelected = allPhotoIds.every(id => selectedPhotos.includes(id));
+        const allPhotoUuids = albumData.photos.map(photo => photo.uuid);
+        const allSelected = allPhotoUuids.every(uuid => selectedPhotos.includes(uuid));
         
         if (allSelected) {
             setSelectedPhotos([]);
         } else {
-            setSelectedPhotos(allPhotoIds);
+            setSelectedPhotos(allPhotoUuids);
         }
     };
 
     const handleAddToCart = () => {
         let addedCount = 0;
-        selectedPhotos.forEach(photoId => {
-            const photo = albumData.photos.find(p => p.id === photoId);
+        selectedPhotos.forEach(photoUuid => {
+            const photo = albumData.photos.find(p => p.uuid === photoUuid);
             if (photo && !isInCart(photo.id)) {
                 addItem({
                     id: photo.id,
@@ -216,20 +217,20 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {albumData.photos.map((photo) => (
-                        <div key={photo.id} className="group relative aspect-square bg-slate-200 rounded-md shadow-sm overflow-hidden">
+                        <div key={photo.uuid} className="group relative aspect-square bg-slate-200 rounded-md shadow-sm overflow-hidden">
                             <div className="pointer-events-none absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"></div>
                             <span className="pointer-events-none absolute bottom-4 right-1/3 text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30">Powiększ mnie</span>
                             <input
                                 type="checkbox"
-                                id={`photo-${photo.id}`}
-                                checked={selectedPhotos.includes(photo.id)}
-                                onChange={() => handlePhotoSelect(photo.id)}
+                                id={`photo-${photo.uuid}`}
+                                checked={selectedPhotos.includes(photo.uuid)}
+                                onChange={() => handlePhotoSelect(photo.uuid)}
                                 className="absolute top-2 right-2 w-4 h-4 text-slate-100 bg-slate-50 border-slate-300 rounded-sm z-40"
                                 aria-label={`Zaznacz zdjęcie ${photo.title || ''}`}
                                 title="Zaznacz zdjęcie"
                             />
                             <button
-                                onClick={() => handlePhotoSelect(photo.id)}
+                                onClick={() => handlePhotoSelect(photo.uuid)}
                                 className="absolute inset-x-0 top-0 bottom-1/2 z-10 cursor-default"
                                 aria-label={`Zaznacz lub odznacz zdjęcie ${photo.title || ''}`}
                                 title="Zaznacz/odznacz"
