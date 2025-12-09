@@ -30,6 +30,8 @@ interface Photo {
 interface AlbumData {
     title?: string;
     photos: Photo[];
+    photo_price?: number;
+    full_album_price?: number | null;
 }
 
 export default function AlbumDetail({ params }: { params: Promise<{ slug: string }> }) {
@@ -58,7 +60,12 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                 }
 
                 const data = await response.json();
-                setAlbumData({ title: data.title, photos: data.photos || data });
+                setAlbumData({ 
+                    title: data.title, 
+                    photos: data.photos || data,
+                    photo_price: data.photo_price,
+                    full_album_price: data.full_album_price
+                });
                 setLoading(false);
             } catch (error) {
                 console.error('Error fetching album photos:', error);
@@ -161,6 +168,8 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                     album: photo.album,
                     albumTitle: albumData.title,
                     price: photo.price,
+                    albumPhotoCount: albumData.photos.length,
+                    albumFullPrice: albumData.full_album_price,
                 });
                 addedCount++;
             }
@@ -296,6 +305,9 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                             alt={enlargedPhoto.title || "Powiększone zdjęcie"}
                             className="block max-w-[90vw] max-h-[80vh] object-contain select-none"
                         />
+                        <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1 rounded">
+                            {enlargedPhoto.title || "Bez tytułu"} - {Number(enlargedPhoto.price).toFixed(2)} zł
+                        </div>
                         <button
                             onClick={handleCloseEnlarged}
                             className="absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white rounded-full w-10 h-10 flex items-center justify-center text-2xl leading-none z-[70]"
@@ -315,8 +327,25 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                             <span>Zaznaczone: <strong>{selectedPhotos.length}</strong></span>
                         </div>
                         <div className="flex items-center gap-2 text-slate-700">
+                            {(() => {
+                                const regularPrice = selectedPhotos.reduce((sum, uuid) => {
+                                    const photo = albumData.photos.find(p => p.uuid === uuid);
+                                    return sum + (photo ? Number(photo.price) : 0);
+                                }, 0);
+                                const allSelected = selectedPhotos.length === albumData.photos.length && albumData.photos.length > 0;
+                                const hasDiscount = allSelected && albumData.full_album_price && albumData.full_album_price < regularPrice;
+                                
+                                if (hasDiscount) {
+                                    return (
+                                        <span>Suma: <span className="line-through text-slate-400">{regularPrice.toFixed(2)} zł</span> <strong className="text-green-600">{Number(albumData.full_album_price).toFixed(2)} zł</strong></span>
+                                    );
+                                }
+                                return <span>Suma: <strong>{regularPrice.toFixed(2)} zł</strong></span>;
+                            })()}
+                        </div>
+                        <div className="flex items-center gap-2 text-slate-700">
                             <FaShoppingCart className="text-slate-500" />
-                            <span>Koszyk: <strong>{getTotalItems()}</strong> zdjęć</span>
+                            <span>Koszyk: <strong>{getTotalItems()}</strong></span>
                         </div>
                     </div>
                     <button

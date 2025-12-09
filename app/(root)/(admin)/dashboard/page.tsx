@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { apiFetch } from "../../../lib/api";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { FaCamera, FaLock, FaTrash, FaPlus, FaPen, FaImage, FaSearch, FaFilter, FaEllipsisV, FaUsers } from 'react-icons/fa';
+import { FaCamera, FaLock, FaTrash, FaPlus, FaPen, FaImage, FaSearch, FaFilter, FaEllipsisV, FaUsers, FaTag } from 'react-icons/fa';
 import { toast } from "sonner";
 import {
   DropdownMenu,
@@ -25,7 +25,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
   const [albums, setAlbums] = useState<any[]>([]);
-  const [editing, setEditing] = useState<{ slug: string; field: 'title' | 'description' } | null>(null);
+  const [editing, setEditing] = useState<{ slug: string; field: 'title' | 'description' | 'photo_price' | 'full_album_price' } | null>(null);
   const [editValue, setEditValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -86,14 +86,18 @@ export default function Dashboard() {
     }
   }
 
-  function startEdit(slug: string, field: 'title' | 'description', value: string) {
+  function startEdit(slug: string, field: 'title' | 'description' | 'photo_price' | 'full_album_price', value: string) {
     setEditing({ slug, field });
     setEditValue(value);
   }
 
   async function saveEdit() {
     if (!editing) return;
-    const body = editing.field === 'title' ? { title: editValue } : { description: editValue };
+    let body: Record<string, any> = {};
+    if (editing.field === 'title') body = { title: editValue };
+    else if (editing.field === 'description') body = { description: editValue };
+    else if (editing.field === 'photo_price') body = { photo_price: editValue };
+    else if (editing.field === 'full_album_price') body = { full_album_price: editValue || null };
     await apiFetch(`/api/albums/${editing.slug}/meta/`, { method: 'PATCH', body: JSON.stringify(body) });
     setEditing(null);
     toast.success('Zapisano zmiany');
@@ -265,7 +269,27 @@ export default function Dashboard() {
                         </div>
                       )}
 
-                      <div className="flex gap-4 text-sm mt-auto">
+                      {editing && editing.slug === a.slug && (editing.field === 'photo_price' || editing.field === 'full_album_price') && (
+                        <div className="flex gap-2 items-center">
+                          <span className="text-sm text-slate-600">{editing.field === 'photo_price' ? 'Cena za zdjęcie:' : 'Cena za album:'}</span>
+                          <input 
+                            type="number" 
+                            step="0.01" 
+                            min="0" 
+                            value={editValue} 
+                            onChange={e => setEditValue(e.target.value)} 
+                            className="w-24 border border-slate-300 px-3 py-1 rounded-md text-sm" 
+                            onKeyDown={e => e.key === 'Enter' && saveEdit()} 
+                            placeholder={editing.field === 'full_album_price' ? 'puste = brak' : '5.00'}
+                            autoFocus
+                          />
+                          <span className="text-sm text-slate-500">PLN</span>
+                          <button onClick={saveEdit} className="px-3 py-1 bg-slate-700 text-white rounded-md text-sm">Zapisz</button>
+                          <button onClick={() => setEditing(null)} className="px-3 py-1 bg-slate-200 text-slate-600 rounded-md text-sm">Anuluj</button>
+                        </div>
+                      )}
+
+                      <div className="flex gap-4 text-sm mt-auto flex-wrap">
                         <div className="flex items-center gap-1.5 text-slate-500">
                           <FaCamera className="text-slate-400" />
                           <span>{a.photo_count ?? 0} zdjęć</span>
@@ -274,6 +298,16 @@ export default function Dashboard() {
                           <FaUsers className="text-slate-400" />
                           <span>{a.access_count ?? 0} osób z dostępem</span>
                         </div>
+                        <div className="flex items-center gap-1.5 text-slate-500">
+                          <FaImage className="text-slate-400" />
+                          <span>{a.photo_price ?? '5.00'} zł</span>
+                        </div>
+                        {a.full_album_price && (
+                          <div className="flex items-center gap-1.5 text-slate-500">
+                            <FaTag className="text-slate-400" />
+                            <span>{a.full_album_price} zł</span>
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -303,6 +337,13 @@ export default function Dashboard() {
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => fileInputRefs.current[a.slug]?.click()}>
                           <FaImage className="mr-2" /> Zmień miniaturkę
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => startEdit(a.slug, 'photo_price', String(a.photo_price ?? '5.00'))}>
+                          <FaTag className="mr-2" /> Zmień cenę za zdjęcie
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => startEdit(a.slug, 'full_album_price', String(a.full_album_price ?? ''))}>
+                          <FaTag className="mr-2" /> Zmień cenę za album
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem variant="destructive" onClick={() => deleteAlbum(a.slug)}>

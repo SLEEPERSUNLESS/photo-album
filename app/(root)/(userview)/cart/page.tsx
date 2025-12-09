@@ -18,6 +18,9 @@ interface AlbumGroup {
   albumTitle: string;
   items: CartItem[];
   totalPrice: number;
+  albumPhotoCount?: number;
+  albumFullPrice?: number | null;
+  hasFullAlbum: boolean;
 }
 
 export default function CartPage() {
@@ -36,10 +39,19 @@ export default function CartPage() {
           albumTitle: item.albumTitle || `Album #${albumId}`,
           items: [],
           totalPrice: 0,
+          albumPhotoCount: item.albumPhotoCount,
+          albumFullPrice: item.albumFullPrice,
+          hasFullAlbum: false,
         };
       }
       groups[albumId].items.push(item);
       groups[albumId].totalPrice += parseFloat(String(item.price)) || 0;
+      if (item.albumPhotoCount) groups[albumId].albumPhotoCount = item.albumPhotoCount;
+      if (item.albumFullPrice) groups[albumId].albumFullPrice = item.albumFullPrice;
+    });
+
+    Object.values(groups).forEach(group => {
+      group.hasFullAlbum = !!(group.albumPhotoCount && group.items.length === group.albumPhotoCount);
     });
 
     return Object.values(groups);
@@ -199,7 +211,14 @@ export default function CartPage() {
                   </span>
                 </div>
                 <span className="text-lg font-semibold text-slate-700">
-                  {group.totalPrice > 0 ? `${Number(group.totalPrice).toFixed(2)} zł` : 'Darmowe'}
+                  {group.hasFullAlbum && group.albumFullPrice && group.albumFullPrice < group.totalPrice ? (
+                    <>
+                      <span className="line-through text-slate-400 font-normal">{Number(group.totalPrice).toFixed(2)} zł</span>
+                      <span className="ml-2 text-green-600">{Number(group.albumFullPrice).toFixed(2)} zł</span>
+                    </>
+                  ) : (
+                    group.totalPrice > 0 ? `${Number(group.totalPrice).toFixed(2)} zł` : 'Darmowe'
+                  )}
                 </span>
               </div>
 
@@ -283,7 +302,7 @@ export default function CartPage() {
                 className="block max-w-[90vw] max-h-[80vh] object-contain select-none"
               />
               <div className="absolute bottom-4 left-4 bg-black/70 text-white px-3 py-1 rounded">
-                {enlargedPhoto.title || "Bez tytułu"} {enlargedPhoto.price ? `- ${enlargedPhoto.price} zł` : ''} 
+                {enlargedPhoto.title || "Bez tytułu"} {enlargedPhoto.price ? `- ${Number(enlargedPhoto.price).toFixed(2)} zł` : ''} 
                 <span className="ml-2 text-white/70">({currentIdx + 1}/{albumItems.length})</span>
               </div>
               <button
@@ -306,7 +325,23 @@ export default function CartPage() {
               <span>W koszyku: <strong>{getTotalItems()}</strong> {getTotalItems() === 1 ? 'zdjęcie' : getTotalItems() < 5 ? 'zdjęcia' : 'zdjęć'}</span>
             </div>
             <div className="flex items-center gap-2 text-slate-700">
-              <span>Razem: <strong className="text-lg">{getTotalPrice() > 0 ? `${Number(getTotalPrice()).toFixed(2)} zł` : 'Darmowe'}</strong></span>
+              {(() => {
+                const regularTotal = getTotalPrice();
+                const discountedTotal = albumGroups.reduce((sum, group) => {
+                  if (group.hasFullAlbum && group.albumFullPrice && group.albumFullPrice < group.totalPrice) {
+                    return sum + group.albumFullPrice;
+                  }
+                  return sum + group.totalPrice;
+                }, 0);
+                const hasDiscount = discountedTotal < regularTotal;
+                
+                if (hasDiscount && regularTotal > 0) {
+                  return (
+                    <span>Razem: <span className="line-through text-slate-400">{regularTotal.toFixed(2)} zł</span> <strong className="text-lg text-green-600">{discountedTotal.toFixed(2)} zł</strong></span>
+                  );
+                }
+                return <span>Razem: <strong className="text-lg">{regularTotal > 0 ? `${regularTotal.toFixed(2)} zł` : 'Darmowe'}</strong></span>;
+              })()}
             </div>
           </div>
           <div className="flex items-center gap-3">

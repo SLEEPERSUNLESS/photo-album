@@ -11,6 +11,8 @@ export interface CartItem {
   album: number;
   albumTitle?: string;
   price?: number;
+  albumPhotoCount?: number;
+  albumFullPrice?: number | null;
 }
 
 interface CartContextType {

@@ -15,6 +15,8 @@ export default function NewAlbumPage() {
   const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [photoPrice, setPhotoPrice] = useState("5.00");
+  const [fullAlbumPrice, setFullAlbumPrice] = useState("");
   const [thumbnail, setThumbnail] = useState<UploadFile | null>(null);
   const [photos, setPhotos] = useState<UploadFile[]>([]);
   const [message, setMessage] = useState<string | null>(null);
@@ -180,6 +182,8 @@ export default function NewAlbumPage() {
       const form = new FormData();
       form.append('title', title);
       if (description) form.append('description', description);
+      form.append('photo_price', photoPrice || '5.00');
+      if (fullAlbumPrice) form.append('full_album_price', fullAlbumPrice);
       if (thumbnail) form.append('thumbnail', thumbnail.file);
       photos.forEach((photo) => form.append('photos', photo.file));
       
@@ -241,6 +245,38 @@ export default function NewAlbumPage() {
               className="w-full border border-gray-300 p-3 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24 resize-none" 
               placeholder="Krótki opis albumu" 
             />
+          </div>
+        </div>
+
+        {/* Pricing */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex flex-col">
+            <label htmlFor="photoPrice" className="block text-sm font-medium text-slate-700 mb-2">Cena za zdjęcie (PLN)</label>
+            <input 
+              id="photoPrice"
+              type="number"
+              step="0.01"
+              min="0"
+              value={photoPrice} 
+              onChange={(e)=>setPhotoPrice(e.target.value)} 
+              className="w-full border border-gray-300 p-3 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+              placeholder="5.00"
+            />
+            <span className="text-xs text-slate-500 mt-1">Każde zdjęcie w albumie będzie miało tę cenę</span>
+          </div>
+          <div className="flex flex-col">
+            <label htmlFor="fullAlbumPrice" className="block text-sm font-medium text-slate-700 mb-2">Cena za cały album (PLN, opcjonalnie)</label>
+            <input 
+              id="fullAlbumPrice"
+              type="number"
+              step="0.01"
+              min="0"
+              value={fullAlbumPrice} 
+              onChange={(e)=>setFullAlbumPrice(e.target.value)} 
+              className="w-full border border-gray-300 p-3 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+              placeholder="Zostaw puste jeśli brak zniżki"
+            />
+            <span className="text-xs text-slate-500 mt-1">Zniżka za zakup całego albumu</span>
           </div>
         </div>
 
