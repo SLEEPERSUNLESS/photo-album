@@ -79,7 +79,9 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
 
     useEffect(() => {
         if (!enlargedPhoto) return;
+        const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
         document.body.style.overflow = 'hidden';
+        document.body.style.paddingRight = `${scrollbarWidth}px`;
 
         let canScroll = true;
         const handleWheel = (e: WheelEvent) => {
@@ -93,6 +95,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
         window.addEventListener('wheel', handleWheel, { passive: false });
         return () => {
             document.body.style.overflow = '';
+            document.body.style.paddingRight = '';
             window.removeEventListener('wheel', handleWheel);
         };
     }, [enlargedPhoto, albumData.photos]);

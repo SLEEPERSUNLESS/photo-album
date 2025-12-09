@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { FaFilter } from "react-icons/fa6";
-import { FaSearch, FaArrowRight, FaCamera, FaAngleLeft, FaAngleRight } from "react-icons/fa";
+import { FaSearch, FaArrowRight, FaCamera, FaAngleLeft, FaAngleRight, FaImage } from "react-icons/fa";
 import Link from "next/link";
 import { apiFetch } from '../../../lib/api';
 
@@ -226,19 +226,25 @@ export default function Albums() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
               {albums.map((album) => (
-                <Link key={album.id} href={`/albums/${album.slug}`} className="transition-transform hover:scale-[1.01]">
-                  <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                    <div className="relative h-48 bg-slate-500 flex flex-col items-end">
-                      <img src={album.thumbnail} className="w-full h-full object-cover" alt={album.title} />
-                      <div className="absolute p-1 px-3 bg-slate-700 text-slate-50 flex items-center flex-row gap-2 rounded-full text-xs font-semibold">
-                        <FaCamera className="mb-0.5" /> 
+                <Link key={album.id} href={`/albums/${album.slug}`} className="transition-transform hover:scale-[1.01] h-full">
+                  <div className="bg-white rounded-lg shadow-sm overflow-hidden h-full flex flex-col">
+                    <div className="relative h-48 bg-slate-200 flex-shrink-0">
+                      {album.thumbnail ? (
+                        <img src={album.thumbnail} className="w-full h-full object-cover" alt={album.title} />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-slate-400">
+                          <FaImage size={24} />
+                        </div>
+                      )}
+                      <div className="absolute bottom-2 right-2 px-3 py-1 bg-slate-700 text-slate-50 flex items-center gap-2 rounded-full text-xs font-semibold">
+                        <FaCamera /> 
                         <span>{album.photo_count} zdjęć</span>
                       </div>
                     </div>
-                    <div className="p-4">
+                    <div className="p-4 flex flex-col flex-grow">
                       <h2 className="text-xl font-semibold text-slate-700">{album.title}</h2>
-                      <p className="text-slate-500 text-sm">{album.description}</p>
-                      <div className="flex flex-row justify-between gap-2 mt-8">
+                      <p className="text-slate-500 text-sm line-clamp-3">{album.description}</p>
+                      <div className="flex flex-row justify-between items-center gap-2 mt-auto pt-4">
                         <p className="text-slate-600 text-sm">Ostatnio odwiedzany: 2 dni temu</p>
                         <FaArrowRight className="text-slate-500" />
                       </div>
