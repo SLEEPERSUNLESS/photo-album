@@ -9,6 +9,7 @@ import { IoIosCheckmarkCircle } from "react-icons/io";
 import { FaList } from "react-icons/fa6";
 import { HiMiniSquares2X2 } from "react-icons/hi2";
 import { toast } from "sonner";
+import LazyImage from "../../../../../components/LazyImage";
 
 interface Photo {
     id: number;
@@ -32,7 +33,13 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
     const [error, setError] = useState<string | null>(null);
     const [enlargedPhoto, setEnlargedPhoto] = useState<Photo | null>(null);
     const [justAdded, setJustAdded] = useState(false);
+    const [loadedCount, setLoadedCount] = useState(0);
     const { addItem, isInCart, getTotalItems } = useCart();
+
+    // Reset licznika gdy zmienia się album
+    useEffect(() => {
+        setLoadedCount(0);
+    }, [slug]);
 
     useEffect(() => {
         const fetchAlbumPhotos = async () => {
@@ -216,7 +223,7 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {albumData.photos.map((photo) => (
+                    {albumData.photos.map((photo, index) => (
                         <div key={photo.uuid} className="group relative aspect-square bg-slate-200 rounded-md shadow-sm overflow-hidden">
                             <div className="pointer-events-none absolute inset-x-0 bottom-0 top-1/2 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20"></div>
                             <span className="pointer-events-none absolute bottom-4 right-1/3 text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-30">Powiększ mnie</span>
@@ -241,7 +248,15 @@ export default function AlbumDetail({ params }: { params: Promise<{ slug: string
                                 aria-label={`Powiększ zdjęcie ${photo.title || 'bez tytułu'}`}
                                 title="Powiększ zdjęcie"
                             />
-                            <img src={photo.url} alt={photo.title || "Album photo"} className="w-full h-full object-cover z-0" />
+                            <LazyImage 
+                                src={photo.url} 
+                                alt={photo.title || "Album photo"} 
+                                className="w-full h-full object-cover z-0"
+                                index={index}
+                                placeholderClassName="rounded-md"
+                                canLoad={index <= loadedCount}
+                                onLoaded={() => setLoadedCount(prev => prev + 1)}
+                            />
                         </div>
                     ))}
                 </div>
