@@ -16,13 +16,14 @@ export default function AlbumPhotosPage() {
   const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(true);
   const [dragOver, setDragOver] = useState(false);
+  const [showAll, setShowAll] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   async function load() {
     setLoading(true);
     const r = await apiFetch(`/api/albums/${slug}/`);
     const data = await r.json();
-    setPhotos(data?.results || (Array.isArray(data) ? data : []));
+    setPhotos(data?.photos || data?.results || (Array.isArray(data) ? data : []));
     setLoading(false);
   }
 
@@ -93,26 +94,49 @@ export default function AlbumPhotosPage() {
 
         {/* Photos list */}
         <div className="bg-white rounded-xl shadow-sm p-6">
-          <h2 className="text-xl font-semibold text-slate-700 mb-6">W albumie ({photos.length})</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold text-slate-700">
+              W albumie: {photos.length} {photos.length > 20 && !showAll && <span className="text-slate-400 font-normal">(wyświetlono 20)</span>}
+            </h2>
+            {photos.length > 20 && !showAll && (
+              <button onClick={() => setShowAll(true)} className="text-sm text-slate-600 hover:text-slate-900 font-medium underline">
+                Wyświetl wszystkie
+              </button>
+            )}
+            {showAll && photos.length > 20 && (
+              <button onClick={() => setShowAll(false)} className="text-sm text-slate-600 hover:text-slate-900 font-medium underline">
+                Pokaż mniej
+              </button>
+            )}
+          </div>
           {loading ? (
             <p className="text-slate-500">Ładowanie...</p>
           ) : photos.length === 0 ? (
             <p className="text-slate-500">Brak zdjęć</p>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {photos.map(p => (
-                <div key={p.uuid} className="group relative aspect-square bg-slate-100 rounded-xl overflow-hidden">
-                  <img src={p.url} alt={p.title} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors" />
-                  <button onClick={() => apiFetch(`/api/albums/${slug}/photos/${p.uuid}/`, { method: 'DELETE' }).then(load)} className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600">
-                    <FaTrash size={12} />
-                  </button>
-                  <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
-                    <span className="text-white text-sm font-medium">{p.price} zł</span>
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {(showAll ? photos : photos.slice(0, 20)).map(p => (
+                  <div key={p.uuid} className="group relative aspect-square bg-slate-100 rounded-xl overflow-hidden">
+                    <img src={p.url} alt={p.title} className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors" />
+                    <button onClick={() => apiFetch(`/api/albums/${slug}/photos/${p.uuid}/`, { method: 'DELETE' }).then(load)} className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600">
+                      <FaTrash size={12} />
+                    </button>
+                    <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
+                      <span className="text-white text-sm font-medium">{p.price} zł</span>
+                    </div>
                   </div>
+                ))}
+              </div>
+              {photos.length > 20 && !showAll && (
+                <div className="mt-6 text-center">
+                  <button onClick={() => setShowAll(true)} className="px-6 py-2 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 font-medium">
+                    Wyświetl wszystkie zdjęcia ({photos.length})
+                  </button>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </div>
       </div>
