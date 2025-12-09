@@ -198,23 +198,41 @@ export default function NewAlbumPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Nowy album</h1>
-      <form onSubmit={onSubmit} className="space-y-6">
+    <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-bold">Nowy album</h1>
+        <div className="flex gap-4">
+          <Link 
+            href="/dashboard?tab=albums" 
+            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+          >
+            Anuluj
+          </Link>
+          <button 
+            type="submit"
+            form="new-album-form"
+            disabled={creating} 
+            className="px-4 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed font-medium"
+          >
+            {creating ? 'Tworzenie albumu...' : 'Utwórz album'}
+          </button>
+        </div>
+      </div>
+      <form id="new-album-form" onSubmit={onSubmit} className="space-y-6">
         {/* Title and Description */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
+          <div className="flex flex-col">
             <label htmlFor="title" className="block text-sm font-medium text-slate-700 mb-2">Tytuł *</label>
-            <input 
+            <textarea 
               id="title" 
               value={title} 
               onChange={(e)=>setTitle(e.target.value)} 
-              className="w-full border border-gray-300 p-3 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+              className="w-full border border-gray-300 p-3 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent h-24 resize-none" 
               placeholder="Nazwa albumu" 
               required
             />
           </div>
-          <div>
+          <div className="flex flex-col">
             <label htmlFor="desc" className="block text-sm font-medium text-slate-700 mb-2">Opis (opcjonalnie)</label>
             <textarea 
               id="desc" 
@@ -226,184 +244,171 @@ export default function NewAlbumPage() {
           </div>
         </div>
 
-        {/* Thumbnail Upload */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Miniaturka albumu (opcjonalnie)</label>
-          <div 
-            className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${
-              thumbnailDragOver 
-                ? 'border-blue-500 bg-blue-50' 
-                : thumbnail 
-                  ? 'border-green-300 bg-green-50'
-                  : 'border-gray-300 hover:border-gray-400 cursor-pointer'
-            }`}
-            onDragOver={handleThumbnailDragOver}
-            onDragLeave={handleThumbnailDragLeave}
-            onDrop={handleThumbnailDrop}
-            onClick={!thumbnail ? () => thumbnailInputRef.current?.click() : undefined}
-          >
-            {thumbnail ? (
-              <div className="space-y-4">
-                <div className="relative inline-block">
-                  <img 
-                    src={thumbnail.preview} 
-                    alt="Thumbnail preview" 
-                    className="w-32 h-32 object-cover rounded-md border" 
-                  />
-                  <button
-                    type="button"
-                    onClick={removeThumbnail}
-                    className="absolute -top-2 -right-2 bg-gray-600 hover:bg-gray-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-sm transition-colors"
-                    title="Usuń miniaturkę"
-                  >
-                    ×
-                  </button>
-                </div>
-                <p className="text-sm text-gray-600">Miniaturka wybrana - przeciągnij nową lub kliknij aby zmienić</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div>
-                  <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                  <div className="mt-4">
-                    <p className="text-lg font-medium text-gray-900">
-                      Przeciągnij miniaturkę tutaj lub{' '}
-                      <button
-                        type="button"
-                        className="text-blue-600 hover:text-blue-500"
-                        onClick={() => thumbnailInputRef.current?.click()}
-                      >
-                        wybierz plik
-                      </button>
-                    </p>
-                    <p className="text-sm text-gray-500">PNG, JPG, GIF do 10MB</p>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-          <input
-            ref={thumbnailInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleThumbnailSelect}
-            aria-label="Wybierz plik miniatury"
-          />
-        </div>
-
-        {/* Photos Upload */}
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-2">Zdjęcia albumu (opcjonalnie)</label>
-          <div 
-            className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors cursor-pointer ${
-              photosDragOver 
-                ? 'border-blue-500 bg-blue-50' 
-                : 'border-gray-300 hover:border-gray-400'
-            }`}
-            onDragOver={handlePhotosDragOver}
-            onDragLeave={handlePhotosDragLeave}
-            onDrop={handlePhotosDrop}
-            onClick={() => photosInputRef.current?.click()}
-          >
-            <div className="space-y-4">
-              <div>
-                <svg className="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
-                  <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <div className="mt-4">
-                  <p className="text-lg font-medium text-gray-900">
-                    Przeciągnij zdjęcia tutaj lub{' '}
-                    <button
-                      type="button"
-                      className="text-blue-600 hover:text-blue-500"
-                      onClick={() => photosInputRef.current?.click()}
-                    >
-                      wybierz pliki
-                    </button>
-                  </p>
-                  <p className="text-sm text-gray-500">PNG, JPG, GIF do 10MB każdy</p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <input
-            ref={photosInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            className="hidden"
-            onChange={handlePhotosSelect}
-            aria-label="Wybierz pliki zdjęć"
-          />
-
-          {/* Photos Preview */}
-          {photos.length > 0 && (
-            <div className="mt-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-medium">
-                  Pokazuje {showAllPhotos ? photos.length : Math.min(20, photos.length)} ({photos.length})
-                </h3>
-                <div className="flex items-center gap-2">
-                  {photos.length > 20 && (
-                    <button
-                      type="button"
-                      onClick={() => setShowAllPhotos(!showAllPhotos)}
-                      className="text-sm text-blue-600 hover:text-blue-800"
-                    >
-                      {showAllPhotos ? 'Pokaż mniej' : `Pokaż wszystkie (${photos.length})`}
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => setPhotos([])}
-                    className="text-sm text-red-600 hover:text-red-800"
-                  >
-                    Wyczyść wszystkie
-                  </button>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {(showAllPhotos ? photos : photos.slice(0, 20)).map((photo) => (
-                  <div key={photo.id} className="relative border rounded overflow-hidden">
+        {/* Thumbnail & Photos Upload */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Thumbnail Upload */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Miniaturka albumu (opcjonalnie)</label>
+            <div className="flex items-start gap-4">
+              {/* Thumbnail Preview */}
+              <div className="relative flex-shrink-0 w-32 h-32 rounded-md border border-gray-300 bg-gray-50 flex items-center justify-center overflow-hidden">
+                {thumbnail ? (
+                  <>
                     <img 
-                      src={photo.preview} 
-                      alt="Photo preview" 
-                      className="w-full h-32 object-cover" 
+                      src={thumbnail.preview} 
+                      alt="Thumbnail preview" 
+                      className="w-full h-full object-cover" 
                     />
                     <button
                       type="button"
-                      onClick={() => removePhoto(photo.id)}
-                      className="absolute top-1 right-1 bg-gray-600 hover:bg-gray-700 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow-sm transition-colors"
-                      title="Usuń zdjęcie"
+                      onClick={removeThumbnail}
+                      className="absolute top-1.5 right-1.5 h-5 w-5 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                      title="Usuń miniaturkę"
                     >
-                      ×
+                      <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
                     </button>
-                  </div>
-                ))}
+                  </>
+                ) : (
+                  <svg className="w-12 h-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                )}
+              </div>
+              {/* Dropzone */}
+              <div 
+                className={`flex-1 h-32 border-2 border-dashed rounded-lg text-center transition-colors cursor-pointer flex flex-col items-center justify-center ${
+                  thumbnailDragOver 
+                    ? 'border-blue-500 bg-blue-50' 
+                    : thumbnail
+                      ? 'border-green-400 bg-green-50'
+                      : 'border-gray-300 hover:border-gray-400'
+                }`}
+                onDragOver={handleThumbnailDragOver}
+                onDragLeave={handleThumbnailDragLeave}
+                onDrop={handleThumbnailDrop}
+                onClick={() => thumbnailInputRef.current?.click()}
+              >
+                {thumbnail ? (
+                  <>
+                    <svg className="h-8 w-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <p className="mt-1 text-sm font-medium text-green-700">Miniaturka wybrana</p>
+                    <p className="text-xs text-green-600">Przeciągnij lub kliknij aby zmienić</p>
+                  </>
+                ) : (
+                  <>
+                    <svg className="h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                      <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                    <p className="mt-1 text-sm font-medium text-gray-900">
+                      Przeciągnij lub{' '}
+                      <span className="text-blue-600">wybierz plik</span>
+                    </p>
+                    <p className="text-xs text-gray-500">PNG, JPG, GIF do 10MB</p>
+                  </>
+                )}
               </div>
             </div>
-          )}
+            <input
+              ref={thumbnailInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleThumbnailSelect}
+              aria-label="Wybierz plik miniatury"
+            />
+          </div>
+
+          {/* Photos Upload */}
+          <div>
+            <label className="block text-sm font-medium text-slate-700 mb-2">Zdjęcia albumu (opcjonalnie)</label>
+            <div 
+              className={`h-32 border-2 border-dashed rounded-lg text-center transition-colors cursor-pointer flex flex-col items-center justify-center ${
+                photosDragOver 
+                  ? 'border-blue-500 bg-blue-50' 
+                  : 'border-gray-300 hover:border-gray-400'
+              }`}
+              onDragOver={handlePhotosDragOver}
+              onDragLeave={handlePhotosDragLeave}
+              onDrop={handlePhotosDrop}
+              onClick={() => photosInputRef.current?.click()}
+            >
+              <svg className="h-8 w-8 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <p className="mt-1 text-sm font-medium text-gray-900">
+                Przeciągnij lub{' '}
+                <span className="text-blue-600">wybierz pliki</span>
+              </p>
+              <p className="text-xs text-gray-500">PNG, JPG, GIF do 10MB każdy</p>
+            </div>
+            <input
+              ref={photosInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handlePhotosSelect}
+              aria-label="Wybierz pliki zdjęć"
+            />
+          </div>
         </div>
+
+        {/* Photos Preview */}
+        {photos.length > 0 && (
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-medium">
+                Pokazuje {showAllPhotos ? photos.length : Math.min(20, photos.length)} ({photos.length})
+              </h3>
+              <div className="flex items-center gap-2">
+                {photos.length > 20 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllPhotos(!showAllPhotos)}
+                    className="text-sm text-blue-600 hover:text-blue-800"
+                  >
+                    {showAllPhotos ? 'Pokaż mniej' : `Pokaż wszystkie (${photos.length})`}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setPhotos([])}
+                  className="text-sm text-red-600 hover:text-red-800"
+                >
+                  Wyczyść wszystkie
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {(showAllPhotos ? photos : photos.slice(0, 20)).map((photo) => (
+                <div key={photo.id} className="relative border rounded overflow-hidden">
+                  <img 
+                    src={photo.preview} 
+                    alt="Photo preview" 
+                    className="w-full h-32 object-cover" 
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(photo.id)}
+                    className="absolute top-1.5 right-1.5 h-5 w-5 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                    title="Usuń zdjęcie"
+                  >
+                    <svg className="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {message && <p className="text-sm text-red-600 bg-red-50 p-3 rounded-md">{message}</p>}
         
-        <div className="flex justify-end gap-4 pt-4">
-          <Link 
-            href="/dashboard?tab=albums" 
-            className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-          >
-            Anuluj
-          </Link>
-          <button 
-            disabled={creating} 
-            className="px-4 py-2 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors disabled:opacity-60 disabled:cursor-not-allowed font-medium"
-          >
-            {creating ? 'Tworzenie albumu...' : 'Utwórz album'}
-          </button>
-        </div>
       </form>
     </div>
   );
