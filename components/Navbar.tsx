@@ -79,12 +79,14 @@ export default function Navbar({ albumTitle }: Props) {
           <div className="hidden md:flex items-center space-x-4">
             <TokenTimer />
             {isAdmin && (
-              <Link
-                href="/dashboard"
-                className={`${linkBase} ${pathname.startsWith('/dashboard') ? linkActive : linkInactive}`}
-              >
-                Panel
-              </Link>
+              <>
+                <Link
+                  href="/dashboard"
+                  className={`${linkBase} ${pathname.startsWith('/dashboard') ? linkActive : linkInactive}`}
+                >
+                  Panel
+                </Link>
+              </>
             )}
             <Link
               href="/albums"
@@ -105,8 +107,8 @@ export default function Navbar({ albumTitle }: Props) {
               )}
             </Link>
             <Link
-              href="/"
-              className={`${linkBase} ${pathname === '/' ? linkActive : linkInactive}`}
+              href="/orders"
+              className={`${linkBase} ${pathname.startsWith('/orders') ? linkActive : linkInactive}`}
             >
               Zamówienia
             </Link>
@@ -185,8 +187,8 @@ export default function Navbar({ albumTitle }: Props) {
               )}
             </Link>
             <Link
-              href="/"
-              className={`${mobileLinkBase} ${pathname === '/' ? linkActive : linkInactive}`}
+              href="/orders"
+              className={`${mobileLinkBase} ${pathname.startsWith('/orders') ? linkActive : linkInactive}`}
             >
               Zamówienia
             </Link>
