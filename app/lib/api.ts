@@ -1,5 +1,7 @@
 "use client";
 
+import { removeToken } from './auth';
+
 export const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
 
 export async function apiFetch(path: string, options: RequestInit = {}) {
@@ -27,6 +29,7 @@ export async function apiFetch(path: string, options: RequestInit = {}) {
 
   if (resp.status === 401) {
     if (typeof window !== 'undefined') {
+      removeToken();
       window.location.href = '/';
     }
     throw new Error('Unauthorized');
