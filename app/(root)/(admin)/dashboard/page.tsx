@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "../../../../components/ui/dropdown-menu";
 
-type AllowedEntry = { id: string | number; email: string; is_admin?: boolean };
+type AllowedEntry = { id: string | number; email: string; is_admin?: boolean; created_at?: string | null };
 
 export default function Dashboard() {
   const searchParams = useSearchParams();
@@ -190,9 +190,16 @@ export default function Dashboard() {
                           {it.is_admin ? 'admin' : 'użytkownik'}
                         </span>
                       </div>
-                      <button onClick={() => apiFetch(`/api/auth/admin/allowed_emails/${it.id}/`, { method: "DELETE" }).then(load)} className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg">
-                        <FaTrash />
-                      </button>
+                      <div className="flex items-center gap-3">
+                        {it.created_at && (
+                          <span className="text-xs text-slate-400">
+                            Utworzony: {new Date(it.created_at).toLocaleDateString('pl-PL')} {new Date(it.created_at).toLocaleTimeString('pl-PL', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        )}
+                        <button onClick={() => apiFetch(`/api/auth/admin/allowed_emails/${it.id}/`, { method: "DELETE" }).then(load)} className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg">
+                          <FaTrash />
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>

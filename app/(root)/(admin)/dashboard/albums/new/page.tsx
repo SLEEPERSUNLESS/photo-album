@@ -193,6 +193,7 @@ export default function NewAlbumPage() {
         throw new Error(d?.detail || 'Błąd tworzenia albumu');
       }
       const created = await r.json();
+      
       router.push(`/dashboard/albums/${encodeURIComponent(created.slug)}/access?justCreated=1`);
     } catch (err:any) {
       setMessage(err?.message || 'Błąd');

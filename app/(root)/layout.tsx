@@ -17,8 +17,9 @@ export default function Layout({
   const [albumTitle, setAlbumTitle] = useState<string | undefined>(undefined);
 
   useEffect(() => {
-    if (pathname.includes('/albums/')) {
-      const albumId = pathname.split('/').pop();
+    // Only show album title for user view album pages, not admin/dashboard pages
+    if (pathname.includes('/albums/') && !pathname.includes('/dashboard/')) {
+      const albumId = pathname.split('/albums/')[1]?.split('/')[0];
       if (albumId) {
         setAlbumTitle(`Album ${albumId}`);
       }
