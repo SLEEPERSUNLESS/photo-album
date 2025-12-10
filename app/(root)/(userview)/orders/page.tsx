@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { apiFetch, API_BASE } from "../../../lib/api";
 import { toast } from "sonner";
-import { FaDownload, FaSpinner, FaBox, FaArrowLeft } from "react-icons/fa";
+import { FaDownload, FaSpinner, FaBox, FaArrowLeft, FaSearch } from "react-icons/fa";
 import Link from "next/link";
 
 type Order = {
@@ -21,11 +21,37 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
 
-  async function loadOrders() {
+  // Check if user is admin
+  useEffect(() => {
+    async function checkAdmin() {
+      try {
+        const r = await apiFetch("/api/auth/me/");
+        const data = await r.json();
+        setIsAdmin(!!data?.is_staff);
+      } catch {
+        setIsAdmin(false);
+      }
+    }
+    checkAdmin();
+  }, []);
+
+  // Debounce search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchQuery);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const loadOrders = useCallback(async () => {
     setLoading(true);
     try {
-      const r = await apiFetch("/api/orders/history/");
+      const searchParam = isAdmin && debouncedSearch ? `?search=${encodeURIComponent(debouncedSearch)}` : "";
+      const r = await apiFetch(`/api/orders/history/${searchParam}`);
       const data = await r.json();
       setOrders(data);
     } catch (e) {
@@ -33,7 +59,7 @@ export default function OrdersPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [isAdmin, debouncedSearch]);
 
   async function handleDownload(orderId: number) {
     setDownloadingId(orderId);
@@ -66,7 +92,7 @@ export default function OrdersPage() {
 
   useEffect(() => {
     loadOrders();
-  }, []);
+  }, [loadOrders]);
 
   if (loading) {
     return (
@@ -98,7 +124,21 @@ export default function OrdersPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-slate-900 mb-8">Zamówienia</h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+          <h1 className="text-3xl font-bold text-slate-900">Zamówienia</h1>
+          {isAdmin && (
+            <div className="bg-white flex items-center gap-2 h-10 rounded-md border border-slate-300 px-3">
+              <FaSearch className="text-slate-400" />
+              <input
+                type="text"
+                placeholder="Szukaj po emailu..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-48 outline-none border-none text-sm"
+              />
+            </div>
+          )}
+        </div>
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <table className="min-w-full divide-y divide-slate-200">
             <thead className="bg-slate-50">

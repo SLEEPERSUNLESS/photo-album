@@ -57,7 +57,7 @@ export default function Navbar({ albumTitle }: Props) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="flex items-center">
+            <Link href="/albums" className="flex items-center">
               <SiPhotopea className="text-slate-700 text-2xl mr-2" />
             </Link>
             <div className="flex flex-col">

@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { apiFetch } from "../lib/api";
-import { setToken, setTokens } from "../lib/auth";
+import { setToken, setTokens, getToken } from "../lib/auth";
 import { FaFacebook, FaGoogle, FaInstagram } from "react-icons/fa";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import { SiPhotopea } from "react-icons/si";
@@ -10,12 +11,21 @@ import { IoChevronDown } from "react-icons/io5";
 import Link from "next/link";
 
 export default function Home() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [codeSent, setCodeSent] = useState(false);
   const [code, setCode] = useState("");
   const [emailError, setEmailError] = useState("");
   const [codeError, setCodeError] = useState("");
   const codeInputRef = useRef<HTMLInputElement>(null);
+
+  // Redirect to albums if already logged in
+  useEffect(() => {
+    const token = getToken();
+    if (token) {
+      router.replace('/albums');
+    }
+  }, [router]);
 
   useEffect(() => {
     if (codeSent) {
