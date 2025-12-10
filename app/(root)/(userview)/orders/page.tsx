@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { apiFetch, API_BASE } from "../../../lib/api";
+import { apiFetch, API_BASE, retryPayment } from "../../../lib/api";
 import { toast } from "sonner";
-import { FaDownload, FaSpinner, FaBox, FaArrowLeft, FaSearch, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { FaDownload, FaSpinner, FaBox, FaArrowLeft, FaSearch, FaChevronLeft, FaChevronRight, FaRedo } from "react-icons/fa";
 import Link from "next/link";
 
 type Order = {
@@ -30,6 +30,7 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
+  const [retryingId, setRetryingId] = useState<number | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -118,6 +119,22 @@ export default function OrdersPage() {
     }
   }
 
+  async function handleRetryPayment(orderId: number) {
+    setRetryingId(orderId);
+    try {
+      const data = await retryPayment(orderId);
+      if (data.redirect_url) {
+        window.location.href = data.redirect_url;
+      } else {
+        toast.error("Nie otrzymano URL przekierowania");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Błąd podczas wznawiania płatności");
+    } finally {
+      setRetryingId(null);
+    }
+  }
+
   useEffect(() => {
     loadOrders();
   }, [loadOrders]);
@@ -188,11 +205,13 @@ export default function OrdersPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                       order.status === 'paid' ? 'bg-green-100 text-green-800' :
+                      order.status === 'incomplete' ? 'bg-orange-100 text-orange-800' :
                       order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                       order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
                       'bg-slate-100 text-slate-800'
                     }`}>
                       {order.status === 'paid' ? 'Opłacone' :
+                       order.status === 'incomplete' ? 'Niedokończone' :
                        order.status === 'pending' ? 'Oczekujące' :
                        order.status === 'cancelled' ? 'Anulowane' :
                        order.status}
@@ -202,22 +221,40 @@ export default function OrdersPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{order.paid_at ? new Date(order.paid_at).toLocaleDateString() : '-'}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{order.photos.length}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    {order.status === 'paid' && (
-                      <button
-                        onClick={() => handleDownload(order.id)}
-                        disabled={downloadingId === order.id}
-                        className="inline-flex items-center px-3 py-1.5 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium"
-                      >
-                        {downloadingId === order.id ? (
-                          <FaSpinner className="animate-spin" />
-                        ) : (
-                          <>
-                            <FaDownload className="mr-1.5" />
-                            Pobierz
-                          </>
-                        )}
-                      </button>
-                    )}
+                    <div className="flex gap-2">
+                      {order.status === 'paid' && (
+                        <button
+                          onClick={() => handleDownload(order.id)}
+                          disabled={downloadingId === order.id}
+                          className="inline-flex items-center px-3 py-1.5 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium"
+                        >
+                          {downloadingId === order.id ? (
+                            <FaSpinner className="animate-spin" />
+                          ) : (
+                            <>
+                              <FaDownload className="mr-1.5" />
+                              Pobierz
+                            </>
+                          )}
+                        </button>
+                      )}
+                      {['incomplete', 'pending', 'cancelled'].includes(order.status) && (
+                        <button
+                          onClick={() => handleRetryPayment(order.id)}
+                          disabled={retryingId === order.id}
+                          className="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium"
+                        >
+                          {retryingId === order.id ? (
+                            <FaSpinner className="animate-spin" />
+                          ) : (
+                            <>
+                              <FaRedo className="mr-1.5" />
+                              Kontynuuj płatność
+                            </>
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

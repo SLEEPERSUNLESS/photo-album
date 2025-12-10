@@ -59,3 +59,16 @@ export async function healthCheck() {
 
   return resp.json();
 }
+
+export async function retryPayment(orderId: number) {
+  const resp = await apiFetch(`/api/orders/${orderId}/retry/`, {
+    method: 'POST',
+  });
+
+  if (!resp.ok) {
+    const errorData = await resp.json().catch(() => ({}));
+    throw new Error(errorData.detail || 'Failed to retry payment');
+  }
+
+  return resp.json();
+}
