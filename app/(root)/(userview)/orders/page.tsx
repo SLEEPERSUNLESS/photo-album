@@ -3,7 +3,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { apiFetch, API_BASE, retryPayment } from "../../../lib/api";
 import { toast } from "sonner";
-import { FaDownload, FaSpinner, FaBox, FaArrowLeft, FaSearch, FaChevronLeft, FaChevronRight, FaRedo } from "react-icons/fa";
+import { FaCloudDownloadAlt, FaSpinner, FaBox, FaArrowLeft, FaSearch, FaChevronLeft, FaChevronRight, FaPlayCircle, FaCreditCard, FaRedoAlt } from "react-icons/fa";
+import type { IconType } from "react-icons";
 import Link from "next/link";
 
 type Order = {
@@ -25,6 +26,15 @@ type PaginatedResponse = {
 };
 
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
+const PAYMENT_ACTION_COPY: Record<string, { label: string; button: string; Icon: IconType }> = {
+  incomplete: { label: "Dokończ płatność", button: "text-amber-700 border-amber-300 bg-amber-50 hover:bg-amber-100", Icon: FaPlayCircle },
+  pending: { label: "Opłać zamówienie", button: "text-blue-700 border-blue-300 bg-blue-50 hover:bg-blue-100", Icon: FaCreditCard },
+  cancelled: { label: "Ponów płatność", button: "text-rose-700 border-rose-300 bg-rose-50 hover:bg-rose-100", Icon: FaRedoAlt },
+};
+
+function getPaymentAction(status: string) {
+  return PAYMENT_ACTION_COPY[status] ?? { label: "Wznów płatność", button: "text-slate-700 border-slate-300 bg-white hover:bg-slate-50", Icon: FaRedoAlt };
+}
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -185,129 +195,126 @@ export default function OrdersPage() {
           )}
         </div>
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-          <table className="min-w-full divide-y divide-slate-200">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Użytkownik</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Kwota</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Utworzone</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Zapłacone</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Zdjęcia</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Akcje</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-slate-200">
-              {orders.map((order) => (
-                <tr key={order.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 text-sm text-slate-600 max-w-[200px] truncate" title={order.user_email}>{order.user_email}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{order.total_amount} PLN</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      order.status === 'paid' ? 'bg-green-100 text-green-800' :
-                      order.status === 'incomplete' ? 'bg-orange-100 text-orange-800' :
-                      order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      order.status === 'cancelled' ? 'bg-red-100 text-red-800' :
-                      'bg-slate-100 text-slate-800'
-                    }`}>
-                      {order.status === 'paid' ? 'Opłacone' :
-                       order.status === 'incomplete' ? 'Niedokończone' :
-                       order.status === 'pending' ? 'Oczekujące' :
-                       order.status === 'cancelled' ? 'Anulowane' :
-                       order.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{new Date(order.created_at).toLocaleDateString()}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{order.paid_at ? new Date(order.paid_at).toLocaleDateString() : '-'}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{order.photos.length}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    <div className="flex gap-2">
-                      {order.status === 'paid' && (
-                        <button
-                          onClick={() => handleDownload(order.id)}
-                          disabled={downloadingId === order.id}
-                          className="inline-flex items-center px-3 py-1.5 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium"
-                        >
-                          {downloadingId === order.id ? (
-                            <FaSpinner className="animate-spin" />
-                          ) : (
-                            <>
-                              <FaDownload className="mr-1.5" />
-                              Pobierz
-                            </>
-                          )}
-                        </button>
-                      )}
-                      {['incomplete', 'pending', 'cancelled'].includes(order.status) && (
-                        <button
-                          onClick={() => handleRetryPayment(order.id)}
-                          disabled={retryingId === order.id}
-                          className="inline-flex items-center px-3 py-1.5 bg-orange-600 text-white rounded-md hover:bg-orange-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium"
-                        >
-                          {retryingId === order.id ? (
-                            <FaSpinner className="animate-spin" />
-                          ) : (
-                            <>
-                              <FaRedo className="mr-1.5" />
-                              Kontynuuj płatność
-                            </>
-                          )}
-                        </button>
-                      )}
-                    </div>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-slate-200">
+              <thead className="bg-slate-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Użytkownik</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Kwota</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Utworzone</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Zapłacone</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Zdjęcia</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Akcje</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        
-        {/* Pagination controls */}
-        <div className="bg-white border-t border-slate-200 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-b-lg">
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-slate-600">
-              Pokazuje {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, totalCount)} z {totalCount} zamówień
-            </span>
-            <div className="flex items-center gap-2">
-              <label htmlFor="page-size-select" className="text-sm text-slate-600">Na stronie:</label>
-              <select
-                id="page-size-select"
-                value={pageSize}
-                onChange={(e) => handlePageSizeChange(Number(e.target.value))}
-                className="font-[inherit] bg-white border border-slate-300 rounded-md px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 cursor-pointer appearance-none pr-8 bg-no-repeat bg-[length:16px_16px] bg-[right_8px_center]"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")` }}
-              >
-                {PAGE_SIZE_OPTIONS.map((size) => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
-            </div>
+              </thead>
+              <tbody className="bg-white divide-y divide-slate-200">
+                {orders.map((order) => {
+                  const paymentAction = getPaymentAction(order.status);
+                  return (
+                    <tr key={order.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-6 py-4 text-sm text-slate-600 max-w-[200px] truncate" title={order.user_email}>{order.user_email}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{order.total_amount} PLN</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${order.status === 'paid' ? 'bg-green-100 text-green-800' : order.status === 'incomplete' ? 'bg-orange-100 text-orange-800' : order.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : order.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-slate-100 text-slate-800'}`}>
+                          {order.status === 'paid' ? 'Opłacone' :
+                          order.status === 'incomplete' ? 'Niedokończone' :
+                          order.status === 'pending' ? 'Oczekujące' :
+                          order.status === 'cancelled' ? 'Anulowane' :
+                          order.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{new Date(order.created_at).toLocaleDateString()}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{order.paid_at ? new Date(order.paid_at).toLocaleDateString() : '-'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{order.photos.length}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <div className="flex gap-2">
+                          {order.status === 'paid' && (
+                            <button
+                              onClick={() => handleDownload(order.id)}
+                              disabled={downloadingId === order.id}
+                              className="inline-flex items-center justify-center min-w-[150px] px-3 py-1.5 bg-slate-700 text-white rounded-md hover:bg-slate-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium"
+                            >
+                              {downloadingId === order.id ? (
+                                <FaSpinner className="animate-spin" />
+                              ) : (
+                                <>
+                                  <FaCloudDownloadAlt className="mr-1.5" />
+                                  Pobierz
+                                </>
+                              )}
+                            </button>
+                          )}
+                          {['incomplete', 'pending', 'cancelled'].includes(order.status) && (
+                            <button
+                              onClick={() => handleRetryPayment(order.id)}
+                              disabled={retryingId === order.id}
+                              className={`inline-flex items-center justify-center min-w-[150px] px-3 py-1.5 rounded-md border transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium ${paymentAction.button}`}
+                            >
+                              {retryingId === order.id ? (
+                                <FaSpinner className="animate-spin" />
+                              ) : (
+                                <>
+                                  <paymentAction.Icon className="mr-1.5" />
+                                  {paymentAction.label}
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-          
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="inline-flex items-center px-3 py-1.5 border border-slate-300 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <FaChevronLeft className="mr-1" />
-              Poprzednia
-            </button>
+
+          {/* Pagination controls */}
+          <div className="border-t border-slate-200 bg-slate-50 px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-slate-600">
+                Pokazuje {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, totalCount)} z {totalCount} zamówień
+              </span>
+              <div className="flex items-center gap-2">
+                <label htmlFor="page-size-select" className="text-sm text-slate-600">Na stronie:</label>
+                <select
+                  id="page-size-select"
+                  value={pageSize}
+                  onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                  className="font-[inherit] bg-white border border-slate-300 rounded-md px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 cursor-pointer appearance-none pr-8 bg-no-repeat bg-[length:16px_16px] bg-[right_8px_center]"
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")` }}
+                >
+                  {PAGE_SIZE_OPTIONS.map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
             
-            <span className="text-sm text-slate-600 px-2">
-              Strona {currentPage} z {totalPages || 1}
-            </span>
-            
-            <button
-              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage >= totalPages}
-              className="inline-flex items-center px-3 py-1.5 border border-slate-300 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Następna
-              <FaChevronRight className="ml-1" />
-            </button>
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
+              <button
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                aria-label="Poprzednia strona"
+                className="p-2 rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <FaChevronLeft />
+              </button>
+              
+              <span className="text-sm text-slate-600 px-2">Strona {currentPage} z {totalPages || 1}</span>
+              
+              <button
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages}
+                aria-label="Następna strona"
+                className="p-2 rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <FaChevronRight />
+              </button>
+            </div>
           </div>
         </div>
       </div>
