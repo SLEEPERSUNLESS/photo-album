@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { apiFetch, API_BASE } from "../../../lib/api";
 import { toast } from "sonner";
-import { FaDownload, FaSpinner, FaBox, FaArrowLeft, FaSearch } from "react-icons/fa";
+import { FaDownload, FaSpinner, FaBox, FaArrowLeft, FaSearch, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import Link from "next/link";
 
 type Order = {
@@ -17,6 +17,15 @@ type Order = {
   user_email: string;
 };
 
+type PaginatedResponse = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Order[];
+};
+
+const PAGE_SIZE_OPTIONS = [10, 20, 50];
+
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +33,11 @@ export default function OrdersPage() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
 
   // Check if user is admin
   useEffect(() => {
@@ -43,6 +57,7 @@ export default function OrdersPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
+      setCurrentPage(1); // Reset to first page on search
     }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -50,16 +65,29 @@ export default function OrdersPage() {
   const loadOrders = useCallback(async () => {
     setLoading(true);
     try {
-      const searchParam = isAdmin && debouncedSearch ? `?search=${encodeURIComponent(debouncedSearch)}` : "";
-      const r = await apiFetch(`/api/orders/history/${searchParam}`);
-      const data = await r.json();
-      setOrders(data);
+      const params = new URLSearchParams();
+      params.set("page", currentPage.toString());
+      params.set("page_size", pageSize.toString());
+      if (isAdmin && debouncedSearch) {
+        params.set("search", debouncedSearch);
+      }
+      const r = await apiFetch(`/api/orders/history/?${params.toString()}`);
+      const data: PaginatedResponse = await r.json();
+      setOrders(data.results);
+      setTotalCount(data.count);
     } catch (e) {
       toast.error("Błąd ładowania zamówień");
     } finally {
       setLoading(false);
     }
-  }, [isAdmin, debouncedSearch]);
+  }, [isAdmin, debouncedSearch, currentPage, pageSize]);
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  const handlePageSizeChange = (newSize: number) => {
+    setPageSize(newSize);
+    setCurrentPage(1); // Reset to first page when changing page size
+  };
 
   async function handleDownload(orderId: number) {
     setDownloadingId(orderId);
@@ -102,7 +130,7 @@ export default function OrdersPage() {
     );
   }
 
-  if (orders.length === 0) {
+  if (orders.length === 0 && !debouncedSearch) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50">
         <div className="text-center">
@@ -143,7 +171,6 @@ export default function OrdersPage() {
           <table className="min-w-full divide-y divide-slate-200">
             <thead className="bg-slate-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">ID</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Użytkownik</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Kwota</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Status</th>
@@ -156,7 +183,6 @@ export default function OrdersPage() {
             <tbody className="bg-white divide-y divide-slate-200">
               {orders.map((order) => (
                 <tr key={order.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-900">{order.id}</td>
                   <td className="px-6 py-4 text-sm text-slate-600 max-w-[200px] truncate" title={order.user_email}>{order.user_email}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">{order.total_amount} PLN</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -197,6 +223,55 @@ export default function OrdersPage() {
               ))}
             </tbody>
           </table>
+        </div>
+        
+        {/* Pagination controls */}
+        <div className="bg-white border-t border-slate-200 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 rounded-b-lg">
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-slate-600">
+              Pokazuje {((currentPage - 1) * pageSize) + 1}-{Math.min(currentPage * pageSize, totalCount)} z {totalCount} zamówień
+            </span>
+            <div className="flex items-center gap-2">
+              <label htmlFor="page-size-select" className="text-sm text-slate-600">Na stronie:</label>
+              <select
+                id="page-size-select"
+                value={pageSize}
+                onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                className="font-[inherit] bg-white border border-slate-300 rounded-md px-3 py-1.5 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 cursor-pointer appearance-none pr-8 bg-no-repeat bg-[length:16px_16px] bg-[right_8px_center]"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23475569'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")` }}
+              >
+                {PAGE_SIZE_OPTIONS.map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="inline-flex items-center px-3 py-1.5 border border-slate-300 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <FaChevronLeft className="mr-1" />
+              Poprzednia
+            </button>
+            
+            <span className="text-sm text-slate-600 px-2">
+              Strona {currentPage} z {totalPages || 1}
+            </span>
+            
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage >= totalPages}
+              className="inline-flex items-center px-3 py-1.5 border border-slate-300 rounded-md text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Następna
+              <FaChevronRight className="ml-1" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
